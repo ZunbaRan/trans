@@ -1,0 +1,38 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* 更深的莫兰迪色系 */
+  --morandi-blue-rgb: 108, 128, 137;    /* 更深的蓝色 */
+  --morandi-green-rgb: 138, 154, 135;   /* 更深的绿色 */
+  --morandi-gray-rgb: 176, 176, 176;    /* 更深的灰色 */
+  --morandi-beige-rgb: 197, 178, 156;   /* 更深的米色 */
+  --morandi-brown-rgb: 146, 118, 103;   /* 更深的棕色 */
+}
+
+/* 添加淡入动画 */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@layer utilities {
+  .animate-fade-in {
+    animation: fadeIn 0.3s ease-in;
+  }
+}
+
+/* 添加一些全局样式 */
+@layer base {
+  body {
+    @apply bg-morandi-beige;
+  }
+}
+
+@layer components {
+  .morandi-card {
+    @apply bg-white/80 rounded-lg shadow-sm border;
+    border-color: rgba(var(--morandi-brown-rgb), 0.1);
+  }
+}
