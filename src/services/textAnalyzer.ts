@@ -116,8 +116,8 @@ export class TextAnalyzer {
           const goldWordJson = JSON.parse(goldWord);
           const goldWordText = goldWordJson.golden_sentences.map((item: { text: string }) => item.text).join('\n');
           
-          // 生成markdown格式的段落分析
-          return `## ${theme}\n\n${analysis}\n\n### 原文\n\`\`\`text\n${combinedContent}\n\`\`\`\n\n---\n\n### 金句\n\`\`\`text\n${goldWordText}\n\`\`\`\n\n---\n`;
+          // 生成markdown格式的段落分析，不再拼接原文
+          return `## ${theme}\n\n${analysis}\n\n---\n\n### 金句\n\`\`\`text\n${goldWordText}\n\`\`\`\n\n---\n`;
         })
       );
 
@@ -142,7 +142,7 @@ export class TextAnalyzer {
   }
 
   private createAnalysisPrompt(content: string): string {
-    return `你是一位拥有多年经验的内容分析师, 请分析深度以下文本内容，并使用Markdown格式按以下方面进行总结，相关的原文引用尽量多，这样才能更加靠谱佐证论点，并且要将原文引用转换为中文：
+    return `你是一位拥有多年经验的内容分析师, 请分析深度以下文本内容，并使用Markdown格式按以下方面进行总结：
 
       ### 主题与核心观点
       - 主要论述的主题是什么
@@ -164,7 +164,8 @@ export class TextAnalyzer {
       - 推理过程
         
       ### 相关引用
-      > 请列出相关的原文引用
+      > 请列出相关的原文引用（只列出关键句子），尽量多列出相关关键句子，并翻译为中文
+      > 并列出原文引用对应的行号
         
       ### 总结
       简要总结该部分的核心内容

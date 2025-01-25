@@ -32,3 +32,4 @@ yarn-error.log*
 # output files
 /output/*
 !/output/.gitkeep 
+public/logs/*

@@ -107,30 +107,83 @@ export class FileProcessor {
       }
 
       case 'text_split_trans_split': {
-        // 1. 首先进行文本分割
-        const splitter = new TextSplitter();
-        const splitResult = splitter.process(lines);
-        await fs.writeFile(
-          this.getOutputPath(filename, 'text_split'),
-          splitResult.join('\n\n')
-        );
-
-        // 2. 进行翻译
-        const translator = new PromptTranslator(
+         // 0. 异步执行text_analyze_summary
+         const analyzer = new TextAnalyzer(
           this.openai,
-          this.getOutputPath(filename, 'text_trans_prompt'),
-          path.join(this.logsDir, 'translation.log')
+          this.getOutputPath(filename, 'text_analyze_summary'),
+          path.join(this.logsDir, 'analysis.log')
         );
-        const translations = await translator.translate(splitResult);
-        await translator.writeResults(translations);
-
-        // 3. 对翻译结果进行中文句子分割
-        const sentenceSplitter = new TextSentenceSplitter();
-        const finalSplitResult = sentenceSplitter.process(translations);
+        const analysisResults = await analyzer.analyze(content);
         await fs.writeFile(
-          this.getOutputPath(filename, mode),
-          finalSplitResult.join('\n\n')
+          this.getOutputPath(filename, 'text_analyze_summary'),
+          analysisResults.join('\n\n---\n\n')
         );
+ 
+
+         // 1. 首先进行文本分割
+         const splitter = new TextSplitter();
+         const splitResult = splitter.process(lines);
+         await fs.writeFile(
+           this.getOutputPath(filename, 'text_split'),
+           splitResult.join('\n\n')
+         );
+
+         // 2. 进行翻译
+         const translator = new PromptTranslator(
+           this.openai,
+           this.getOutputPath(filename, 'text_trans_prompt'),
+           path.join(this.logsDir, 'translation.log')
+         );
+         const translations = await translator.translate(splitResult);
+         await translator.writeResults(translations);
+ 
+         // 3. 对翻译结果进行中文句子分割
+         const sentenceSplitter = new TextSentenceSplitter();
+         const finalSplitResult = sentenceSplitter.process(translations);
+         await fs.writeFile(
+           this.getOutputPath(filename, mode),
+           finalSplitResult.join('\n\n')
+         );
+        
+        // 计算如何切分文件
+        const totalLines = finalSplitResult.length;
+        const targetPartSize = 600;
+        let partSize: number;
+        let partsCount: number;
+
+        if (totalLines <= targetPartSize) {
+          partSize = totalLines;
+          partsCount = 1;
+        } else {
+          partsCount = Math.ceil(totalLines / targetPartSize);
+          const normalPartSize = Math.floor(totalLines / partsCount);
+          const lastPartSize = totalLines - (normalPartSize * (partsCount - 1));
+          
+          if (Math.abs(lastPartSize - normalPartSize) > 200) {
+            partSize = Math.ceil(totalLines / partsCount);
+          } else {
+            partSize = targetPartSize;
+          }
+        }
+
+        // 获取输出文件路径信息
+        const outputPath = this.getOutputPath(filename, mode);
+        const parsedPath = path.parse(outputPath);
+        
+        // 按照计算出的大小切分并写入文件
+        for (let i = 0; i < partsCount; i++) {
+          const start = i * partSize;
+          const end = Math.min(start + partSize, totalLines);
+          const partResults = finalSplitResult.slice(start, end);
+          const output = partResults.join('\n\n');
+
+          const partFileName = partsCount === 1 
+            ? outputPath 
+            : path.join(parsedPath.dir, `${parsedPath.name}_part${i + 1}${parsedPath.ext}`);
+
+          await fs.writeFile(partFileName, output);
+          console.log(`Part ${i + 1}/${partsCount} written to ${partFileName}`);
+        }
         break;
       }
 

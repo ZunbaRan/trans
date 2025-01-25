@@ -42,21 +42,6 @@ ${data ? JSON.stringify(data, null, 2) : ''}
     }
   }
 
-  private async retransWord(translation: string): Promise<string> {
-    const retransPrompt = await fs.readFile(path.join(process.cwd(), 'src/prompt/retrans_word.md'), 'utf-8');
-    const retrans = await this.openai.chat.completions.create({
-      model: 'deepseek-chat',
-      messages: [{ role: 'system', content: retransPrompt }, { role: 'user', content: translation }],
-      temperature: 0.3
-    });
-    const retransResult = retrans.choices[0].message.content?.trim() || '';
-    await this.logTranslation('二次润色结果:', {
-      input: translation,
-      output: retransResult
-    });
-    return retransResult;
-  }
-
   private async translateLine(line: string): Promise<string> {
     try {
       const completion = await this.openai.chat.completions.create({
@@ -127,12 +112,7 @@ ${data ? JSON.stringify(data, null, 2) : ''}
           })
         );
 
-        // 并发处理每一批的二次润色
-        const batchRetrans = await Promise.all(
-          batchTranslations.map(translation => this.retransWord(translation))
-        );
-
-        allResults.push(...batchRetrans);
+        allResults.push(...batchTranslations);
       }
 
       return allResults;
