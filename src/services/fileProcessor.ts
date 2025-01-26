@@ -147,23 +147,22 @@ export class FileProcessor {
         
         // 计算如何切分文件
         const totalLines = finalSplitResult.length;
-        const targetPartSize = 600;
-        let partSize: number;
-        let partsCount: number;
+        const maxPartSize = 600;  // 每部分最大行数
+        const minPartSize = 400;  // 最小可接受的行数
 
-        if (totalLines <= targetPartSize) {
-          partSize = totalLines;
-          partsCount = 1;
-        } else {
-          partsCount = Math.ceil(totalLines / targetPartSize);
-          const normalPartSize = Math.floor(totalLines / partsCount);
-          const lastPartSize = totalLines - (normalPartSize * (partsCount - 1));
-          
-          if (Math.abs(lastPartSize - normalPartSize) > 200) {
-            partSize = Math.ceil(totalLines / partsCount);
-          } else {
-            partSize = targetPartSize;
-          }
+        // 先用最大行数计算需要几个部分
+        let partsCount = Math.ceil(totalLines / maxPartSize);
+        
+        // 计算使用当前部分数会得到的平均每部分行数
+        let partSize = Math.floor(totalLines / partsCount);
+        
+        // 检查最后一部分的行数
+        const lastPartSize = totalLines - (partSize * (partsCount - 1));
+        
+        // 如果最后一部分太小（小于minPartSize），就减少一个部分，重新平均分配
+        if (lastPartSize < minPartSize) {
+          partsCount--;
+          partSize = Math.ceil(totalLines / partsCount);
         }
 
         // 获取输出文件路径信息
@@ -173,7 +172,9 @@ export class FileProcessor {
         // 按照计算出的大小切分并写入文件
         for (let i = 0; i < partsCount; i++) {
           const start = i * partSize;
-          const end = Math.min(start + partSize, totalLines);
+          const end = i === partsCount - 1 
+            ? totalLines  // 最后一部分取到结尾
+            : Math.min(start + partSize, totalLines);
           const partResults = finalSplitResult.slice(start, end);
           const output = partResults.join('\n\n');
 
