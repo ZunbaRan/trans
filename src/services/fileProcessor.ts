@@ -12,12 +12,16 @@ export class FileProcessor {
   private readonly inputDir: string;
   private readonly outputDir: string;
   private readonly logsDir: string;
+  private readonly model: string;
 
   constructor() {
     this.openai = new OpenAI({
       apiKey: process.env.OPENAI_API_KEY,
       baseURL: process.env.OPENAI_BASE_URL
     });
+
+    // 获取model配置，如果没有配置则使用默认值
+    this.model = process.env.OPENAI_MODEL || 'deepseek-chat';
 
     // 设置目录路径
     this.inputDir = path.join(process.cwd(), 'public/input');
@@ -89,7 +93,8 @@ export class FileProcessor {
         const translator = new PromptTranslator(
           this.openai,
           this.getOutputPath(filename, mode),
-          path.join(this.logsDir, 'translation.log')
+          path.join(this.logsDir, 'translation.log'),
+          this.model
         );
         const translations = await translator.translate(lines);
         await translator.writeResults(translations);
@@ -111,7 +116,8 @@ export class FileProcessor {
          const analyzer = new TextAnalyzer(
           this.openai,
           this.getOutputPath(filename, 'text_analyze_summary'),
-          path.join(this.logsDir, 'analysis.log')
+          path.join(this.logsDir, 'analysis.log'),
+          this.model
         );
         const analysisResults = await analyzer.analyze(content);
         await fs.writeFile(
@@ -132,7 +138,8 @@ export class FileProcessor {
          const translator = new PromptTranslator(
            this.openai,
            this.getOutputPath(filename, 'text_trans_prompt'),
-           path.join(this.logsDir, 'translation.log')
+           path.join(this.logsDir, 'translation.log'),
+           this.model
          );
          const translations = await translator.translate(splitResult);
          await translator.writeResults(translations);
@@ -192,7 +199,8 @@ export class FileProcessor {
         const analyzer = new TextAnalyzer(
           this.openai,
           this.getOutputPath(filename, mode),
-          path.join(this.logsDir, 'analysis.log')
+          path.join(this.logsDir, 'analysis.log'),
+          this.model
         );
         const analysisResults = await analyzer.analyze(content);
         await fs.writeFile(

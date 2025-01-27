@@ -12,9 +12,10 @@ export class TextAnalyzer {
   private readonly logsDir: string;
 
   constructor(
-    private openai: OpenAI,
-    private outputPath: string,
-    private logPath: string
+    private readonly openai: OpenAI,
+    private readonly outputPath: string,
+    private readonly logPath: string,
+    private readonly model: string
   ) {
     // 设置日志目录路径
     this.logsDir = path.join(process.cwd(), 'public/logs');
@@ -85,7 +86,7 @@ export class TextAnalyzer {
           const prompt = this.createAnalysisPrompt(combinedContent);
           
           const analysisResult = await this.openai.chat.completions.create({
-            model: 'deepseek-chat',
+            model: this.model,
             messages: [
               {
                 role: "system",
@@ -107,7 +108,7 @@ export class TextAnalyzer {
           // 提取黄金句子
           const goldWordPrompt = await fs.readFile(path.join(process.cwd(), 'src/prompt/gold_word.md'), 'utf-8');
           const goldWordResult = await this.openai.chat.completions.create({
-            model: 'deepseek-chat',
+            model: this.model,
             messages: [{ role: 'system', content: goldWordPrompt }, { role: 'user', content: combinedContent }],
             temperature: 0.3
           });
@@ -179,7 +180,7 @@ ${content}`;
   private async analyzeContent(content: string, systemPrompt: string): Promise<ThemeSection[]> {
     try {
       const completion = await this.openai.chat.completions.create({
-        model: 'deepseek-chat',
+        model: this.model,
         messages: [
           {
             role: "system",

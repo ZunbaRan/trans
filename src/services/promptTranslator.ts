@@ -7,11 +7,18 @@ export class PromptTranslator {
   private readonly outputPath: string;
   private readonly logFile: string;
   private systemPrompt: string = '';
+  private readonly model: string;
 
-  constructor(openai: OpenAI, outputPath: string, logFile: string) {
+  constructor(
+    openai: OpenAI,
+    outputPath: string,
+    logFile: string,
+    model: string
+  ) {
     this.openai = openai;
     this.outputPath = outputPath;
     this.logFile = logFile;
+    this.model = model;
   }
 
   private async logTranslation(message: string, data?: any): Promise<void> {
@@ -45,7 +52,7 @@ ${data ? JSON.stringify(data, null, 2) : ''}
   private async translateLine(line: string): Promise<string> {
     try {
       const completion = await this.openai.chat.completions.create({
-        model: 'deepseek-chat',
+        model: this.model,
         messages: [
           {
             role: "system",
