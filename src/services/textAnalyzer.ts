@@ -80,7 +80,8 @@ export class TextAnalyzer {
           // 合并该主题的所有内容
           const combinedContent = blockContents.join('\n\n');
           console.log(`主题 "${theme}" 包含 ${sections.length} 个文本段落`);
-          
+          // 打印combinedContent的行数
+          console.log(`combinedContent的行数: ${combinedContent.split('\n').length}`);
           const prompt = this.createAnalysisPrompt(combinedContent);
           
           const analysisResult = await this.openai.chat.completions.create({
