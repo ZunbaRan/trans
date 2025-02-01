@@ -115,9 +115,24 @@ export class TextAnalyzer {
           const goldWord = goldWordResult.choices[0]?.message?.content || '';
 
           // 解析黄金句子
-          const goldWordJson = JSON.parse(goldWord);
-          const goldWordText = goldWordJson.golden_sentences.map((item: { text: string }) => item.text).join('\n');
-          
+          // 打印 goldWord
+          console.log('goldWord:', goldWord);
+          // 日志记录 goldWord
+          await this.logGoldWord(theme, combinedContent, goldWord);
+          let goldWordText = '';
+          try {
+            // 去除goldword 前后的非 json 字符串
+            const jsonStart = goldWord.indexOf('{');
+            const jsonEnd = goldWord.lastIndexOf('}') + 1;
+            if (jsonStart >= 0 && jsonEnd > jsonStart) {
+             const reGoldWord = goldWord.substring(jsonStart, jsonEnd);
+             const goldWordJson = JSON.parse(reGoldWord);
+             goldWordText = goldWordJson.golden_sentences.map((item: { text: string }) => item.text).join('\n');
+            }
+          } catch (error) {
+            console.error('解析金句JSON失败:', error);
+            goldWordText = '';
+          }
           // 生成markdown格式的段落分析，不再拼接原文
           return `## ${theme}\n\n${analysis}\n\n---\n\n### 金句\n\`\`\`text\n${goldWordText}\n\`\`\`\n\n---\n`;
         })
@@ -141,6 +156,21 @@ export class TextAnalyzer {
       await this.logError(error);
       throw error;
     }
+  }
+  private async logGoldWord(theme: string, combinedContent: string, goldWord: string) {
+    const logContent = `
+==================== 金句记录 ====================
+时间：${new Date().toISOString()}
+主题：${theme}
+
+输入内容：
+${combinedContent}
+
+金句：
+${goldWord}
+================================================
+\n`;
+    await this.writeLog(path.join(this.logsDir, 'gold_word.log'), logContent);
   }
 
   private createAnalysisPrompt(content: string): string {
