@@ -39,7 +39,9 @@ ${data ? JSON.stringify(data, null, 2) : ''}
   private async loadPrompt(): Promise<void> {
     try {
       this.systemPrompt = await fs.readFile(
-        path.join(process.cwd(), 'src', 'prompt', 'trans.md'),
+        // 选择提示词文件
+        // path.join(process.cwd(), 'src', 'prompt', 'trans.md'),
+        path.join(process.cwd(), 'src', 'prompt', 'transV2.md'),
         'utf-8'
       );
       await this.logTranslation('Loaded system prompt');
