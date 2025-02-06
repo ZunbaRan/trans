@@ -135,6 +135,8 @@ export class TextAnalyzer {
             console.log('goldWordText:', goldWordText);
           } catch (error) {
             console.error('解析金句JSON失败:', error);
+            // 记录错误到日志文件
+            await this.logError(error);
             goldWordText = '';
           }
           // 生成markdown格式的段落分析，不再拼接原文
