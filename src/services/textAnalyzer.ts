@@ -118,24 +118,30 @@ export class TextAnalyzer {
             temperature: 0.3
           });
           const goldWord = goldWordResult.choices[0]?.message?.content || '';
-
           // 解析黄金句子
-          // 打印 goldWord
           console.log('goldWord:', goldWord);
           // 日志记录 goldWord
           await this.logGoldWord(theme, combinedContent, goldWord);
+
+          // 如果 goldword 中有“匮乏才是创新的摇篮“这句，则将这句替换为空字符串
+          let goldWordTextReplace = goldWord.replace('匮乏才是创新的摇篮', '');
+          
           let goldWordText = '';
           try {
             // 去除goldword 前后的非 json 字符串
-            const jsonStart = goldWord.indexOf('{');
-            const jsonEnd = goldWord.lastIndexOf('}') + 1;
+            console.log('goldWordTextReplace:', goldWordTextReplace);
+            const jsonStart = goldWordTextReplace.indexOf('{');
+            const jsonEnd = goldWordTextReplace.lastIndexOf('}') + 1;
             if (jsonStart >= 0 && jsonEnd > jsonStart) {
              const reGoldWord = goldWord.substring(jsonStart, jsonEnd);
              const goldWordJson = JSON.parse(reGoldWord);
              goldWordText = goldWordJson.golden_sentences.map((item: { text: string }) => item.text).join('\n');
             }
+            console.log('goldWordText:', goldWordText);
           } catch (error) {
             console.error('解析金句JSON失败:', error);
+            // 记录错误到日志文件
+            await this.logError(error);
             goldWordText = '';
           }
           // 生成markdown格式的段落分析，不再拼接原文
