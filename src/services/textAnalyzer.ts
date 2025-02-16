@@ -8,6 +8,11 @@ export interface ThemeSection {
   sections: { start_line: number; end_line: number; }[];
 }
 
+interface Section {
+  start_line: string | number;
+  end_line: string | number;
+}
+
 export class TextAnalyzer {
   private readonly logsDir: string;
 
@@ -248,7 +253,7 @@ ${content}`;
           }
           return {
             theme: item.theme,
-            sections: item.sections.map(section => ({
+            sections: item.sections.map((section: Section) => ({
               start_line: Number(section.start_line) || 1,
               end_line: Number(section.end_line) || 1
             }))
