@@ -57,11 +57,6 @@ export class FunnyAnalyzer {
       stepType: 'what_if'
     },
     {
-      name: '场景化手段',
-      promptFile: 'scenario_techniques.md',
-      stepType: 'techniques'
-    },
-    {
       name: '光明面',
       promptFile: 'bright_side.md',
       stepType: 'bright_side'
@@ -75,11 +70,6 @@ export class FunnyAnalyzer {
       name: '类比式幽默',
       promptFile: 'analogical_humor.md',
       stepType: 'analogical'
-    },
-    {
-      name: '谐音梗',
-      promptFile: 'homophonic_pun.md',
-      stepType: 'homophonic'
     },
     {
       name: '自嘲式幽默',
