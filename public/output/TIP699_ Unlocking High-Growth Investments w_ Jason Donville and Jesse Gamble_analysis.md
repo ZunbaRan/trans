@@ -1968,25 +1968,6 @@ AI就像是个超级实习生，不拿工资、不喝咖啡、不抱怨加班，
 ### What If
 What if AI became so efficient that it started running businesses better than humans, but it still had to report to a human CEO? Imagine the AI presenting its quarterly results: "Sir, I've increased profits by 300%, optimized every process, and even negotiated a merger with our competitor. All while you were on your third coffee break. Now, about that promotion..." The CEO, trying to look busy, responds, "Great job, uh, AI... but can you explain it in a PowerPoint? Preferably with more pie charts and less math."
 
-### 场景化手段
-会议室的空调发出轻微的嗡嗡声，像一只困倦的蜜蜂。SPEAKER_05的手指无意识地敲打着桌面，节奏像是在演奏一首无声的爵士乐。他的目光在SPEAKER_03和SPEAKER_01之间来回游移，仿佛在寻找一个完美的切入点。
-
-"所以你们提到了AI，"SPEAKER_05开口道，声音里带着一丝试探，"我知道我们还没机会深入讨论这个话题，但从你们2023和2024年的信件中，我明显感觉到你们在这个领域投入了不少精力。"
-
-他停顿了一下，仿佛在等待一个看不见的提示。窗外的阳光透过百叶窗，在地板上投下斑驳的影子，像是一串等待被解读的密码。
-
-"跟我聊聊AI吧，"他继续说道，语气变得更加专注，"你们对它感兴趣，是因为它能够帮助那些尚未利用AI的企业在未来变得更好，还是因为它能让科技公司更上一层楼，无论是加速收入增长还是提高利润率？"
-
-SPEAKER_03清了清嗓子，他的声音像是从一台老式收音机里传出来的，带着一丝沙哑。"我们已经在看到它提高效率了，"他说，手指无意识地摩挲着面前的咖啡杯，杯沿上还残留着一圈淡淡的咖啡渍，"我们有一些投资，如果没有AI在后台支持，它们根本无法像现在这样扩展。"
-
-他停顿了一下，仿佛在等待这句话在空气中发酵。"就像，这根本不可能，"他补充道，语气中带着一丝不容置疑的坚定，"有几笔投资就是这样，对吧？它们不是AI公司，但它们把AI当作一种工具。"
-
-SPEAKER_01此时插话进来，他的声音像是从一场远方的风暴中传来，带着一种不容忽视的力量。"但是，即使是这样，"他说，手指在空中划出一道看不见的弧线，"回到我之前读过的那项研究，关于美国的十倍股，绝大多数都来自科技行业。"
-
-他的目光在房间里扫视了一圈，仿佛在寻找一个看不见的听众。"它们并不完全来自那里，但大概占了75%，"他继续说道，语气中带着一丝不容置疑的权威，"加拿大也是这样。当我们看我们的重大胜利时，75%都来自科技，对吧？"
-
-会议室里突然安静下来，只有空调的嗡嗡声在空气中回荡，像是一首无声的交响曲。SPEAKER_05的手指停止了敲打，他的目光在两位发言人之间游移，仿佛在等待一个完美的答案。窗外的阳光依旧透过百叶窗，在地板上投下斑驳的影子，像是一串等待被解读的密码。
-
 ### 光明面
 虽然AI技术的快速发展让很多人担心自己的工作会被取代，但至少我们终于有了一个可以光明正大地把锅甩给AI的机会：「这个错误不是我犯的，是AI干的！」而且，AI的普及还创造了一个新的就业岗位——AI调教师，专门教AI不要说错话、不要犯傻。这就像当年汽车取代马车时，虽然马车夫失业了，但修车工和驾校教练的岗位却增加了。所以，与其担心被AI取代，不如想想怎么成为那个调教AI的人。毕竟，AI再聪明，也还是需要人类来教它如何做一个「合格」的AI。
 
@@ -2255,68 +2236,6 @@ SPEAKER_01提到，他们在通讯中讨论的公司都是他们已经投资的�
 ### What If
 What if 投资通讯变成了一本八卦杂志？想象一下，打开你们的投资通讯，标题写着：「独家揭秘！我们刚刚买入了这家公司，原因竟然是CEO的猫特别可爱！」或者：「震惊！这家公司的股价即将飙升，因为我们发现他们的会议室里有一台超赞的咖啡机！」你们已经买入了这些公司，现在轮到我们来八卦它们的「内幕」了。我们不会告诉你们我们明天要买什么，但一旦我们买了，你们就会看到一篇充满「爆料」的文章：「我们刚刚入手了这家公司，虽然我们已经赚了一笔，但你们还有机会哦！快来看看这家公司的咖啡机有多棒！」而且，Jesse的文笔简直堪比八卦记者，每篇文章都让人欲罢不能。你们可能会想：「哇，这些公司听起来好有趣，但我怎么从来没听说过？」所以，如果你们想了解我们的「投资八卦」，这本通讯就是你们的最佳选择！
 
-### 场景化手段
-[P901] [SPEAKER_03]: Well, I'll jump in and then let Jason finish.  
-[P902] [SPEAKER_03]: But we write a quarterly newsletter and monthly commentaries that goes to our clients, but anyone can receive it.  
-[P903] [SPEAKER_03]: So if you go to our website, donvillekent.com, you can sign up.  
-[P904] [SPEAKER_03]: And we just, we write about similar conversations like we had today.  
-[P905] [SPEAKER_03]: But Jason, I'll hand it over to you.  
-
-[P906] [SPEAKER_01]: I know a lot of people are skeptical.  
-[P907] [SPEAKER_01]: We just let people read our newsletter.  
-[P908] [SPEAKER_01]: Just realize that when we talk about companies, we already own them.  
-[P909] [SPEAKER_01]: Like, we're not going to tell you about the company that we're just about to invest in tomorrow.  
-[P910] [SPEAKER_01]: But once we're in, someone says, what's in there for us?  
-[P911] [SPEAKER_01]: We'd like to share our ideas and engage.  
-[P912] [SPEAKER_01]: Part of the discovery process is we've found this really great company.  
-[P913] [SPEAKER_01]: There's still a lot of upside.  
-[P914] [SPEAKER_01]: We already got our piece, but there's still lots of upside for you guys, so have a look.  
-[P915] [SPEAKER_01]: And Jesse does most of the writing of the newsletter now, and I think, you know, it's very well received.  
-[P916] [SPEAKER_01]: People like it.  
-[P917] [SPEAKER_01]: It's got a lot of ideas and...  
-[P918] [SPEAKER_01]: you know, it's a, it's kind of a fresh look at the market and a lot of companies that are not, people have already got a lot of exposure to Microsoft and Apple.  
-[P919] [SPEAKER_01]: So it's a lot of companies that go, wow, these are kind of interesting companies, you know, but I haven't heard of them before.  
-[P920] [SPEAKER_01]: So yeah.  
-[P921] [SPEAKER_01]: So I think if you really want to learn about us, the newsletter is the best place to go.  
-
----
-
-**场景化描述：**
-
-会议室里，SPEAKER_03坐在一张磨损的橡木桌旁，桌上摆着一台老式笔记本电脑，键盘上的字母“E”已经磨得几乎看不见。他清了清嗓子，手指无意识地敲打着桌面，发出轻微的“哒哒”声。窗外的阳光透过百叶窗的缝隙洒进来，在地板上投下细长的光条。  
-
-“Well, I'll jump in and then let Jason finish,”他说道，声音里带着一丝紧张，仿佛在担心自己说错话。他的目光扫过会议室里的每一个人，最后停在Jason身上，后者正低头摆弄着一支笔，笔帽上还沾着咖啡渍。  
-
-“But we write a quarterly newsletter and monthly commentaries that goes to our clients, but anyone can receive it,”他继续说道，语气渐渐放松下来，仿佛找到了自己的节奏。他的手在空中比划了一下，像是在画一个看不见的流程图。“So if you go to our website, donvillekent.com, you can sign up.”  
-
-Jason抬起头，嘴角微微上扬，仿佛在说：“轮到我了。”他接过话茬，声音低沉而自信：“I know a lot of people are skeptical.”他停顿了一下，目光扫过会议室，像是在寻找共鸣。“We just let people read our newsletter.”  
-
-他的手指在桌面上轻轻敲击，仿佛在为自己的话打节拍。“Just realize that when we talk about companies, we already own them.”他的语气里带着一丝得意，像是在炫耀自己的先见之明。“Like, we're not going to tell you about the company that we're just about to invest in tomorrow.”  
-
-会议室里响起一阵轻笑，Jason也跟着笑了，但他的眼神依然专注，仿佛在说：“但你们懂的，对吧？”  
-
-“But once we're in, someone says, what's in there for us?”他继续说道，语气里带着一丝挑衅，仿佛在挑战听众的想象力。“We'd like to share our ideas and engage.”  
-
-他的手在空中挥了一下，像是在邀请大家加入他的世界。“Part of the discovery process is we've found this really great company.”他的声音里带着一丝兴奋，仿佛在分享一个秘密。“There's still a lot of upside.”  
-
-他停顿了一下，目光扫过会议室，仿佛在确认每个人都在认真听。“We already got our piece, but there's still lots of upside for you guys, so have a look.”  
-
-他的语气里带着一丝诱惑，仿佛在说：“相信我，你们不会后悔的。”  
-
-“And Jesse does most of the writing of the newsletter now, and I think, you know, it's very well received.”他的声音里带着一丝自豪，仿佛在夸赞自己的孩子。“People like it.”  
-
-他的手在空中挥了一下，仿佛在展示一件艺术品。“It's got a lot of ideas and... you know, it's a, it's kind of a fresh look at the market and a lot of companies that are not, people have already got a lot of exposure to Microsoft and Apple.”  
-
-他的语气里带着一丝兴奋，仿佛在分享一个秘密。“So it's a lot of companies that go, wow, these are kind of interesting companies, you know, but I haven't heard of them before.”  
-
-他停顿了一下，目光扫过会议室，仿佛在确认每个人都在认真听。“So yeah.”  
-
-他的语气里带着一丝总结，仿佛在说：“这就是我们的故事。”  
-
-“So I think if you really want to learn about us, the newsletter is the best place to go.”  
-
-他的手在空中挥了一下，仿佛在邀请大家加入他的世界。会议室里响起一阵掌声，Jason微微点头，嘴角露出一丝满意的微笑。
-
 ### 光明面
 「我们只分享已经投资的公司，不会告诉你我们明天要投什么。」至少你们很诚实，不像某些股评家，今天推荐，明天就跑路了。而且，你们已经帮大家踩过雷了，这种无私奉献的精神，值得点赞！虽然可能错过了最佳买入时机，但至少不用担心成为接盘侠，这也算是一种另类的风险控制吧。
 
@@ -2341,8 +2260,6 @@ Jason抬起头，嘴角微微上扬，仿佛在说：“轮到我了。”他接
 ### 弱智风格
 如果新闻信是季刊，那它为什么叫新闻？新闻不是应该每天都有吗？也许我们应该叫它“旧闻信”，因为它总是在讲述过去的事情。还有，如果他们已经拥有了这些公司，那他们分享的到底是投资建议还是收藏展示？就像在炫耀自己的邮票一样。最后，如果这些公司真的那么有趣，为什么它们的名字听起来都像是随机生成的？也许我们应该用字母汤来命名公司，至少那样更容易记住。
 
-### 礼貌幽默
-哪有恶人？我来磨他！
 
 ### 搞笑角色
 随便输入一个主题，我来给你讲个笑话
