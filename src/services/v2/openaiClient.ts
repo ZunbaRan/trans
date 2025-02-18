@@ -175,6 +175,38 @@ export class OpenAIClientManager {
       throw error;
     }
   }
+
+  public getReasonerConfigs(): ApiConfig[] {
+    return this.configs.filter(config => config.type === 'reasoner');
+  }
+
+  // 获取所有 normal 类型的配置
+  public getNormalConfigs(): ApiConfig[] {
+    return this.configs.filter(config => config.type === 'normal');
+  }
+
+  // 使用指定模型执行操作
+  public async executeWithModel<T>(
+    title: string,
+    operation: (client: OpenAI, model: string) => Promise<T>
+  ): Promise<T> {
+    const config = this.configs.find(c => c.title === title);
+    if (!config) {
+      throw new Error(`Configuration not found for title: ${title}`);
+    }
+
+    const client = this.clients.get(title);
+    if (!client) {
+      throw new Error(`Client not found for title: ${title}`);
+    }
+
+    try {
+      return await operation(client.client, client.model);
+    } catch (error) {
+      console.error(`API call failed for ${title}:`, error);
+      throw error;
+    }
+  }
 }
 
 // 修复顶层 await 问题，改用立即执行的异步函数
