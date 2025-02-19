@@ -37,6 +37,20 @@
       "type": "normal"
     },
     {
+      "title": "gemini-1.5-pro-latest",
+      "apiKey": "sk-cFVJq5no8VmM2VD8PLFVA6hblflKYwGf9bymWhG36I1poP1y",
+      "baseURL": "https://api.openai-proxy.org/google",
+      "model": "gemini-1.5-pro-latest",
+      "type": "normal"
+    },
+    {
+      "title": "gemini-1.5-pro-002",
+      "apiKey": "sk-cFVJq5no8VmM2VD8PLFVA6hblflKYwGf9bymWhG36I1poP1y",
+      "baseURL": "https://api.openai-proxy.org/google",
+      "model": "gemini-1.5-pro-002",
+      "type": "normal"
+    },
+    {
       "title": "o3-mini-2025-01-31",
       "apiKey": "sk-cFVJq5no8VmM2VD8PLFVA6hblflKYwGf9bymWhG36I1poP1y",
       "baseURL": "https://api.openai-proxy.org/v1",
