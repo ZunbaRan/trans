@@ -12,17 +12,17 @@ interface SummaryStep {
 export class SummaryAnalyzer {
   private readonly summarySteps: SummaryStep[] = [
     {
-      name: '内容分析',
+      name: '1.内容分析',
       promptFile: 'setp1_Content_Analysis.md',
       stepType: 'content_analysis'
     },
     {
-      name: '价值点提取',
+      name: '2.价值点提取',
       promptFile: 'step2_Value_Point_Extraction.md',
       stepType: 'value_points'
     },
     {
-      name: '金句提取',
+      name: '3.金句提取',
       promptFile: 'step3_gold_word.md',
       stepType: 'gold_words'
     }
