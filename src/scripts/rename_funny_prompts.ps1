@@ -6,7 +6,6 @@ $renameMap = @{
     "01态度出发.md" = "attitude_perspective.md"
     "02洞察观点.md" = "insight_viewpoint.md"
     "03解释.md" = "explanation.md"
-    "04解决方案.md" = "solution.md"
     "05真诚困境.md" = "sincerity_dilemma.md"
     "06陌生场景.md" = "unfamiliar_scenario.md"
     "07视角转换.md" = "perspective_shift.md"

@@ -129,7 +129,7 @@ export class FunnyAnalyzer {
           this.logsDir,
           'funny',
           async (prompt) => {
-            const result = await openAIClient.executeWithFallback(async (client, model) => {
+            const result = await openAIClient.executeWithModel("doubao-pro-1.5", async (client, model) => {
               return await openAIClient.chat([
                 { role: "system", content: prompt },
                 { role: "user", content: content }
