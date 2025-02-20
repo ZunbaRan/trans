@@ -26,10 +26,6 @@ yarn-error.log*
 .env*.local
 
 # uploaded files
-/public/input/*
-!/public/input/.gitkeep
+
 
 # output files
-/output/*
-!/output/.gitkeep 
-public/logs/*
