@@ -122,7 +122,7 @@ export class ArticleCreator {
               config.title,
               async (client, model) => {
                 return await openAIClient.chat([
-                  { role: "system", content: content },
+                  // { role: "system", content: content },
                   { role: "user", content: userQuestion }
                 ], {
                   model: model,
