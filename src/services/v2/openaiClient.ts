@@ -1,6 +1,7 @@
 import { OpenAI } from 'openai';
 import * as fs from 'fs/promises';
 import path from 'path';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 interface ApiConfig {
   title: string;
@@ -8,6 +9,7 @@ interface ApiConfig {
   baseURL: string;
   model: string;
   type: 'normal' | 'reasoner';
+  compatibleMode: 'openai' | 'gemini';
 }
 
 interface OpenAIConfig {
@@ -18,7 +20,12 @@ interface OpenAIConfig {
 export class OpenAIClientManager {
   private static instance: OpenAIClientManager;
   private configs: ApiConfig[] = [];
-  private clients: Map<string, { client: OpenAI; model: string; type: 'normal' | 'reasoner' }> = new Map();
+  private clients: Map<string, { 
+    client: OpenAI | GoogleGenerativeAI; 
+    model: string; 
+    type: 'normal' | 'reasoner';
+    compatibleMode: 'openai' | 'gemini';
+  }> = new Map();
   private currentConfigIndex = 0;
   private defaultTitle: string = '';
 
@@ -37,60 +44,42 @@ export class OpenAIClientManager {
   }
 
   private async initialize() {
-    await this.loadConfigs();
-    this.initializeClients();
-    // 设置初始配置为默认配置
-    this.currentConfigIndex = this.configs.findIndex(config => config.title === this.defaultTitle);
-    if (this.currentConfigIndex === -1) {
-      this.currentConfigIndex = 0;
-      console.warn(`默认配置 ${this.defaultTitle} 未找到，使用第一个配置`);
-    }
-  }
-
-  private async loadConfigs() {
-    console.log('开始加载 API 配置...');
     try {
-      // 读取配置文件
-      const configPath = path.join(process.cwd(), 'src/config/openai.config.json');
-      const configData = await fs.readFile(configPath, 'utf-8');
-      const config: OpenAIConfig = JSON.parse(configData);
-
-      // 设置默认配置
+      const configFile = await fs.readFile(path.join(process.cwd(), 'src/config/openai.config.json'), 'utf8');
+      const config = JSON.parse(configFile);
+      this.configs = config.configs;
       this.defaultTitle = config.default;
-      this.configs = config.configs.map(conf => ({
-        ...conf,
-        apiKey: process.env[conf.apiKey] || conf.apiKey // 支持环境变量
-      }));
 
-      console.log(`已加载 ${this.configs.length} 个配置`);
-      this.configs.forEach(conf => {
-        console.log(`加载配置 ${conf.title}:`, {
-          ...conf,
-          apiKey: `${conf.apiKey.slice(0, 8)}...${conf.apiKey.slice(-4)}`
-        });
-      });
-
+      for (const cfg of this.configs) {
+        if (cfg.compatibleMode === 'gemini') {
+          const genAI = new GoogleGenerativeAI(cfg.apiKey);
+          this.clients.set(cfg.title, {
+            client: genAI,
+            model: cfg.model,
+            type: cfg.type,
+            compatibleMode: cfg.compatibleMode
+          });
+        } else {
+          // OpenAI compatible clients
+          const client = new OpenAI({
+            apiKey: cfg.apiKey,
+            baseURL: cfg.baseURL,
+          });
+          this.clients.set(cfg.title, {
+            client,
+            model: cfg.model,
+            type: cfg.type,
+            compatibleMode: cfg.compatibleMode
+          });
+        }
+      }
     } catch (error) {
-      console.error('没有找到有效的 OpenAI 配置');
-      throw new Error('No valid OpenAI configurations found');
+      console.error('Error initializing OpenAIClientManager:', error);
+      throw error;
     }
   }
 
-
-  private initializeClients() {
-    this.configs.forEach(config => {
-      this.clients.set(config.title, {
-        client: new OpenAI({
-          apiKey: config.apiKey,
-          baseURL: config.baseURL
-        }),
-        model: config.model,
-        type: config.type
-      });
-    });
-  }
-
-  public getCurrentClient(): { client: OpenAI; model: string; type: 'normal' | 'reasoner' } {
+  public getCurrentClient(): { client: OpenAI | GoogleGenerativeAI; model: string; type: 'normal' | 'reasoner'; compatibleMode: 'openai' | 'gemini' } {
     const config = this.configs[this.currentConfigIndex];
     const client = this.clients.get(config.title);
     if (!client) {
@@ -99,7 +88,7 @@ export class OpenAIClientManager {
     return client;
   }
 
-  public getClientByTitle(title: string): { client: OpenAI; model: string; type: 'normal' | 'reasoner' } {
+  public getClientByTitle(title: string): { client: OpenAI | GoogleGenerativeAI; model: string; type: 'normal' | 'reasoner'; compatibleMode: 'openai' | 'gemini' } {
     const client = this.clients.get(title);
     if (!client) {
       throw new Error(`Client not found for title: ${title}`);
@@ -117,7 +106,7 @@ export class OpenAIClientManager {
 
   // 修改后的 executeWithFallback，只使用 normal 类型的模型
   public async executeWithFallback<T>(
-    operation: (client: OpenAI, model: string) => Promise<T>
+    operation: (client: OpenAI | GoogleGenerativeAI, model: string) => Promise<T>
   ): Promise<T> {
     const normalIndexes = this.getNormalConfigIndexes();
     if (normalIndexes.length === 0) {
@@ -156,7 +145,7 @@ export class OpenAIClientManager {
   // 新增方法：专门用于 reasoner 类型的调用
   public async executeWithReasoner<T>(
     title: string,
-    operation: (client: OpenAI, model: string) => Promise<T>
+    operation: (client: OpenAI | GoogleGenerativeAI, model: string) => Promise<T>
   ): Promise<T> {
     const config = this.configs.find(c => c.title === title);
     if (!config || config.type !== 'reasoner') {
@@ -188,7 +177,7 @@ export class OpenAIClientManager {
   // 使用指定模型执行操作
   public async executeWithModel<T>(
     title: string,
-    operation: (client: OpenAI, model: string) => Promise<T>
+    operation: (client: OpenAI | GoogleGenerativeAI, model: string) => Promise<T>
   ): Promise<T> {
     const config = this.configs.find(c => c.title === title);
     if (!config) {
@@ -205,6 +194,54 @@ export class OpenAIClientManager {
     } catch (error) {
       console.error(`API call failed for ${title}:`, error);
       throw error;
+    }
+  }
+
+  public async chat(messages: any[], options: any = {}) {
+    const currentConfig = this.configs[this.currentConfigIndex];
+    const clientInfo = this.clients.get(currentConfig.title);
+    
+    if (!clientInfo) {
+      throw new Error(`No client found for ${currentConfig.title}`);
+    }
+
+    if (clientInfo.compatibleMode === 'gemini') {
+      const genAI = clientInfo.client as GoogleGenerativeAI;
+      const model = genAI.getGenerativeModel({ model: clientInfo.model });
+      
+      // Convert OpenAI messages format to Gemini format
+      const geminiHistory = messages.map(msg => ({
+        role: msg.role,
+        parts: [{ text: msg.content }]
+      }));
+
+      const chat = model.startChat({
+        history: geminiHistory.slice(0, -1), // exclude the last message
+        generationConfig: {
+          maxOutputTokens: options.max_tokens || 1000,
+          temperature: options.temperature || 0.7,
+        }
+      });
+
+      const result = await chat.sendMessage(geminiHistory[geminiHistory.length - 1].parts[0].text);
+      const response = await result.response;
+      
+      return {
+        choices: [{
+          message: {
+            role: 'assistant',
+            content: response.text()
+          }
+        }]
+      };
+    } else {
+      // Original OpenAI compatible API call
+      const client = clientInfo.client as OpenAI;
+      return await client.chat.completions.create({
+        model: clientInfo.model,
+        messages,
+        ...options
+      });
     }
   }
 }

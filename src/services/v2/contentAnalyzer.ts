@@ -123,29 +123,32 @@ export class ContentAnalyzer {
   private async analyzeContent(content: string, systemPrompt: string): Promise<ThemeSection[]> {
     try {
       const result = await openAIClient.executeWithFallback(async (client, model) => {
-        const completion = await client.chat.completions.create({
+        return await openAIClient.chat([
+          { role: "system", content: systemPrompt },
+          { role: "user", content: content }
+        ], {
           model: model,
-          messages: [
-            {
-              role: "system",
-              content: systemPrompt
-            },
-            {
-              role: "user",
-              content: content
-            }
-          ],
           temperature: 0.3
         });
-
-        return completion.choices[0]?.message?.content?.trim() || '[]';
       });
 
-      console.log('contentAnalyzer_analyzeContent_result:', result);
+      // 详细打印结果
+      console.log('AI Response:', {
+        content: result.choices[0]?.message?.content,
+        role: result.choices[0]?.message?.role,
+      });
 
       try {
-        const cleanResult = result.replace(/^```json\n|\n```$/g, '');
-        const parsedResult = JSON.parse(cleanResult);
+        const cleanResult = result.choices[0]?.message?.content?.trim() || '[]';
+        
+        // 打印处理后的结果
+        console.log('Clean Result:', cleanResult);
+
+        // 如果返回的是markdown格式的JSON，去掉markdown标记
+        const jsonContent = cleanResult.replace(/^```json\n|\n```$/g, '').trim();
+        console.log('JSON Content:', jsonContent);
+
+        const parsedResult = JSON.parse(jsonContent);
         
         if (!Array.isArray(parsedResult)) {
           console.error('解析结果不是数组:', parsedResult);

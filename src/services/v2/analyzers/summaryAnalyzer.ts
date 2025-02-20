@@ -30,7 +30,7 @@ export class SummaryAnalyzer {
 
   constructor(
     private readonly logsDir: string
-  ) {}
+  ) { }
 
   public async analyzeSummary(
     content: string,
@@ -50,20 +50,17 @@ export class SummaryAnalyzer {
           'summary',
           async (prompt) => {
             const result = await openAIClient.executeWithFallback(async (client, model) => {
-              const completion = await client.chat.completions.create({
+              return await openAIClient.chat([
+                { role: "system", content: prompt },
+                { role: "user", content: content }
+              ], {
                 model: model,
-                messages: [
-                  { role: "system", content: prompt },
-                  { role: "user", content: content }
-                ],
                 temperature: 0.3
               });
-              return completion.choices[0]?.message?.content || '';
             });
-            
-            return result;
-          }
-        );
+            return result.choices[0]?.message?.content || '';
+          });
+
         analysisResults.push(AnalyzerUtils.formatAnalysisResult(step.name, result));
       } catch (error) {
         console.error(`${step.name}步骤失败:`, error);

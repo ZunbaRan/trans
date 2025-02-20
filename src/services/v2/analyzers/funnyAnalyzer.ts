@@ -130,17 +130,15 @@ export class FunnyAnalyzer {
           'funny',
           async (prompt) => {
             const result = await openAIClient.executeWithFallback(async (client, model) => {
-              const completion = await client.chat.completions.create({
+              return await openAIClient.chat([
+                { role: "system", content: prompt },
+                { role: "user", content: content }
+              ], {
                 model: model,
-                messages: [
-                  { role: "system", content: prompt },
-                  { role: "user", content: content }
-                ],
-                temperature: 0.8  // 幽默创作需要更高的随机性
+                temperature: 0.8
               });
-              return completion.choices[0]?.message?.content || '';
             });
-            return result;
+            return result.choices[0]?.message?.content || '';
           }
         );
         funnyResults.push(AnalyzerUtils.formatAnalysisResult(step.name, result));

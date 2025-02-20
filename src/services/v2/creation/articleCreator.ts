@@ -64,15 +64,13 @@ export class ArticleCreator {
             const result = await openAIClient.executeWithModel(
               config.title,
               async (client, model) => {
-                const completion = await client.chat.completions.create({
+                return await openAIClient.chat([
+                  { role: "system", content: content },
+                  { role: "user", content: userQuestion }
+                ], {
                   model: model,
-                  messages: [
-                    { role: "system", content: content },
-                    { role: "user", content: userQuestion }
-                  ],
                   temperature: 0.6
                 });
-                return completion.choices[0]?.message?.content || '';
               }
             );
             
@@ -80,11 +78,11 @@ export class ArticleCreator {
             const outputFileName = `${config.title}_${file}.md`;
             await fs.writeFile(
               path.join(outputDir, outputFileName),
-              result,
+              result.choices[0]?.message?.content || '',
               'utf-8'
             );
             
-            results.push(result);
+            results.push(result.choices[0]?.message?.content || '');
             console.log(`使用 ${config.title} 和 ${file} 创作完成，已保存到 ${outputFileName}`);
           } catch (error) {
             console.error(`使用 ${config.title} 和 ${file} 创作失败:`, error);
@@ -123,15 +121,13 @@ export class ArticleCreator {
             const result = await openAIClient.executeWithReasoner(
               config.title,
               async (client, model) => {
-                const completion = await client.chat.completions.create({
+                return await openAIClient.chat([
+                  { role: "system", content: content },
+                  { role: "user", content: userQuestion }
+                ], {
                   model: model,
-                  messages: [
-                    { role: "system", content: content },
-                    { role: "user", content: userQuestion }
-                  ],
                   temperature: 0.6
                 });
-                return completion.choices[0]?.message?.content || '';
               }
             );
             
@@ -139,11 +135,11 @@ export class ArticleCreator {
             const outputFileName = `${config.title}_${file}.md`;
             await fs.writeFile(
               path.join(outputDir, outputFileName),
-              result,
+              result.choices[0]?.message?.content || '',
               'utf-8'
             );
             
-            results.push(result);
+            results.push(result.choices[0]?.message?.content || '');
             console.log(`使用 ${config.title} 和 ${file} 创作完成，已保存到 ${outputFileName}`);
           } catch (error) {
             console.error(`使用 ${config.title} 和 ${file} 创作失败:`, error);

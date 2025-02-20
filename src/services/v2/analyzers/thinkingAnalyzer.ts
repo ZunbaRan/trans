@@ -70,17 +70,15 @@ export class ThinkingAnalyzer {
           'thinking',
           async (prompt) => {
             const result = await openAIClient.executeWithFallback(async (client, model) => {
-              const completion = await client.chat.completions.create({
+              return await openAIClient.chat([
+                { role: "system", content: prompt },
+                { role: "user", content: content }
+              ], {
                 model: model,
-                messages: [
-                  { role: "system", content: prompt },
-                  { role: "user", content: content }
-                ],
                 temperature: 0.7
               });
-              return completion.choices[0]?.message?.content || '';
             });
-            return result;
+            return result.choices[0]?.message?.content || '';
           }
         );
         thinkingResults.push(AnalyzerUtils.formatAnalysisResult(step.name, result));

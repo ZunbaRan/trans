@@ -65,16 +65,14 @@ export class StepAnalyzer {
   ): Promise<string> {
     const content = await fs.readFile(path, 'utf-8');
     const result = await openAIClient.executeWithFallback(async (client, model) => {
-      const completion = await client.chat.completions.create({
+      return await openAIClient.chat([
+        { role: "system", content: "请把用户输入的这段文字由 markdown 按结构转为 json " },
+        { role: "user", content: content }
+      ], {
         model: model,
-        messages: [
-          { role: "system", content: "请把用户输入的这段文字由 markdown 按结构转为 json " },
-          { role: "user", content: content }
-        ],
         temperature: 0.3
       });
-      return completion.choices[0]?.message?.content || '';
     });
-    return result;
+    return result.choices[0]?.message?.content || '';
   }
 } 
