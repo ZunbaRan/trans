@@ -27,24 +27,9 @@ export class FunnyAnalyzer {
       stepType: 'explanation'
     },
     {
-      name: '解决方案',
-      promptFile: 'solution.md',
-      stepType: 'solution'
-    },
-    {
       name: '真诚困境',
       promptFile: 'sincerity_dilemma.md',
       stepType: 'sincerity'
-    },
-    {
-      name: '陌生场景',
-      promptFile: 'unfamiliar_scenario.md',
-      stepType: 'unfamiliar'
-    },
-    {
-      name: '视角转换',
-      promptFile: 'perspective_shift.md',
-      stepType: 'perspective'
     },
     {
       name: '类比创作',
