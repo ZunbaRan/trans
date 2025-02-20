@@ -32,11 +32,6 @@ export class ThinkingAnalyzer {
       stepType: 'analogy'
     },
     {
-      name: '概念构建',
-      promptFile: 'Concept_Construction.md',
-      stepType: 'concept_construction'
-    },
-    {
       name: '沉思者',
       promptFile: 'Contemplator.md',
       stepType: 'contemplator'

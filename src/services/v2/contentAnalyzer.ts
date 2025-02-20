@@ -141,12 +141,8 @@ export class ContentAnalyzer {
       try {
         const cleanResult = result.choices[0]?.message?.content?.trim() || '[]';
         
-        // 打印处理后的结果
-        console.log('Clean Result:', cleanResult);
-
         // 如果返回的是markdown格式的JSON，去掉markdown标记
         const jsonContent = cleanResult.replace(/^```json\n|\n```$/g, '').trim();
-        console.log('JSON Content:', jsonContent);
 
         const parsedResult = JSON.parse(jsonContent);
         
