@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 创建分析器实例并调用 demo 方法
-    const analyzer = new StepAnalyzer();
+    const analyzer = new StepAnalyzer(path);
     const result = await analyzer.demo(path);
 
     return NextResponse.json({

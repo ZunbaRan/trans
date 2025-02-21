@@ -70,7 +70,9 @@ export class StepAnalyzer {
         { role: "user", content: content }
       ], {
         model: model,
-        temperature: 0.3
+        temperature: 0.3,
+        frequency_penalty: 1,
+        presence_penalty: 1
       });
     });
     return result.choices[0]?.message?.content || '';
