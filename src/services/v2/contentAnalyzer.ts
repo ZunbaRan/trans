@@ -94,10 +94,12 @@ export class ContentAnalyzer {
           // 将对象中的值合并为字符串数组
           const resultArray = Object.values(results).map(value => value);
           
+          // 添加原文内容到结果数组开头
+          resultArray.unshift(`### 原文内容\n\n${combinedContent}\n\n### 分析结果\n`);
+          
           // 格式化结果
           return AnalyzerUtils.combineResults(theme, resultArray);
-
-          })
+        })
       );
 
       console.log('生成最终Markdown文档...');
@@ -122,13 +124,18 @@ export class ContentAnalyzer {
 
   private async analyzeContent(content: string, systemPrompt: string): Promise<ThemeSection[]> {
     try {
-      const result = await openAIClient.executeWithFallback(async (client, model) => {
+      // 替换提示词中的占位符
+      const prompt = systemPrompt.replace('{$context}', content);
+
+      // 使用 executeWithReasoner 调用
+      const result = await openAIClient.executeWithReasoner("huoshan-DeepSeek-R1", async (client, model) => {
         return await openAIClient.chat([
-          { role: "system", content: systemPrompt },
-          { role: "user", content: content }
+          { role: "user", content: prompt }
         ], {
           model: model,
-          temperature: 0.3
+          temperature: 0.3,
+          frequency_penalty: 1,
+          presence_penalty: 1
         });
       });
 

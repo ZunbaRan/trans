@@ -39,15 +39,16 @@ export class StepAnalyzer {
     const thinkingResults = await this.thinkingAnalyzer.analyzeThinking(content, theme);
 
     // 执行幽默分析
-    console.log('开始执行幽默分析...');
-    const funnyResults = await this.funnyAnalyzer.analyzeFunny(content, theme);
+    // console.log('开始执行幽默分析...');
+    // const funnyResults = await this.funnyAnalyzer.analyzeFunny(content, theme);
     
     // 记录整体分析结果
     await AnalyzerUtils.logAnalysisResult(
       {
         theme,
         input: content,
-        output: `1.总结分析:\n${summaryResults}\n2.思考分析:\n${thinkingResults}\n3.幽默创作:\n${funnyResults}`,
+        // output: `1.总结分析:\n${summaryResults}\n2.思考分析:\n${thinkingResults}\n3.幽默创作:\n${funnyResults}`,
+        output: `1.总结分析:\n${summaryResults}\n2.思考分析:\n${thinkingResults}`,
         type: 'summary'
       },
       this.logsDir
@@ -56,7 +57,7 @@ export class StepAnalyzer {
     return {
       summary_analysis: summaryResults,
       thinking_analysis: thinkingResults,
-      funny_analysis: funnyResults
+      // funny_analysis: funnyResults
     };
   }
 
