@@ -18,13 +18,14 @@ interface DialogRecord {
 export class ReasonerDialogService {
   private readonly logsDir: string;
   private readonly promptsDir: string = 'src/prompt/cn/reasoner_dialog';
-  private readonly historyFile: string = 'public/logs/reasoner_dialog_history.jsonl';
+  private readonly historyDir: string = 'public/logs/reasoner_dialog_history';
   private readonly dialogLogsDir: string = 'public/logs/reasoner_dialogs';
   private readonly model1PromptFile: string = 'model1_prompt.md';
   private readonly model2PromptFile: string = 'model2_prompt.md';
   private readonly maxRounds: number = 5;
   private readonly maxHistoryRounds: number = 5; // 最多保留的历史对话轮次
   private currentLogFile: string = '';
+  private currentHistoryFile: string = '';
 
   constructor(logsDir: string) {
     this.logsDir = logsDir;
@@ -44,11 +45,12 @@ export class ReasonerDialogService {
     try {
       // 确保日志目录存在
       await fs.mkdir(this.dialogLogsDir, { recursive: true });
-      await fs.mkdir(path.dirname(this.historyFile), { recursive: true });
+      await fs.mkdir(this.historyDir, { recursive: true });
       
-      // 创建新的日志文件
+      // 创建新的日志文件和历史文件
       const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
       this.currentLogFile = path.join(this.dialogLogsDir, `dialog_${timestamp}.log`);
+      this.currentHistoryFile = path.join(this.historyDir, `history_${timestamp}.jsonl`);
       
       // 记录对话开始
       await this.logToDialogFile(`开始执行 Reasoner 模型对话\n时间: ${new Date().toISOString()}\n初始话题: ${initialTopic}\n\n`);
@@ -166,6 +168,9 @@ export class ReasonerDialogService {
       return messages;
     }
     
+    // 确保消息交替出现
+    let lastRole: 'user' | 'assistant' | null = null;
+    
     // 将历史记录转换为消息格式
     for (let i = 0; i < historyRecords.length; i++) {
       const record = historyRecords[i];
@@ -181,11 +186,25 @@ export class ReasonerDialogService {
         role = 'user'; // 另一个模型的回应作为用户输入
       }
       
+      // 如果当前角色与上一个相同，则跳过
+      if (lastRole === role) {
+        console.log(`跳过连续的 ${role} 消息，确保消息交替`);
+        continue;
+      }
+      
       // 添加消息
       messages.push({
         role: role,
         content: record.content
       });
+      
+      // 更新上一个角色
+      lastRole = role;
+    }
+    
+    // 确保最后一条消息是用户消息，如果不是则移除
+    if (messages.length > 0 && messages[messages.length - 1].role === 'assistant') {
+      messages.pop();
     }
     
     return messages;
@@ -204,6 +223,15 @@ export class ReasonerDialogService {
       // 替换提示词中的占位符
       const formattedPrompt = systemPrompt.replace('{$question}', userContent);
       
+      // 检查最后一条消息的角色
+      const lastMessage = messageHistory.length > 0 ? messageHistory[messageHistory.length - 1] : null;
+      
+      // 如果最后一条消息是用户消息，则移除它以避免连续的用户消息
+      if (lastMessage && lastMessage.role === 'user') {
+        console.log('移除最后一条用户消息，避免连续的用户消息');
+        messageHistory.pop();
+      }
+      
       // 添加用户消息到历史
       messageHistory.push({ role: "user", content: formattedPrompt });
       
@@ -213,7 +241,7 @@ export class ReasonerDialogService {
         async (client, model) => {
           return await openAIClient.chat(messageHistory, {
             model: model,
-            max_tokens: 65536  // 设置 max_tokens 为 64k
+            max_tokens: 8192
           });
         }
       );
@@ -316,8 +344,8 @@ export class ReasonerDialogService {
       // 将记录转换为 JSON 行
       const jsonLine = JSON.stringify(record) + '\n';
       
-      // 追加到历史文件
-      await fs.appendFile(this.historyFile, jsonLine, 'utf-8');
+      // 追加到当前历史文件
+      await fs.appendFile(this.currentHistoryFile, jsonLine, 'utf-8');
     } catch (error) {
       console.error('添加记录到历史文件失败:', error);
     }
@@ -330,14 +358,14 @@ export class ReasonerDialogService {
     try {
       // 检查文件是否存在
       try {
-        await fs.access(this.historyFile);
+        await fs.access(this.currentHistoryFile);
       } catch {
         // 文件不存在，返回空数组
         return [];
       }
       
       // 读取文件内容
-      const content = await fs.readFile(this.historyFile, 'utf-8');
+      const content = await fs.readFile(this.currentHistoryFile, 'utf-8');
       
       // 按行分割并解析 JSON
       const lines = content.trim().split('\n');
@@ -366,6 +394,13 @@ export class ReasonerDialogService {
    */
   public getCurrentLogFile(): string {
     return this.currentLogFile;
+  }
+
+  /**
+   * 获取当前历史文件路径
+   */
+  public getCurrentHistoryFile(): string {
+    return this.currentHistoryFile;
   }
 }
 

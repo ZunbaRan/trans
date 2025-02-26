@@ -1,0 +1,71 @@
+开始执行 Reasoner 模型对话
+时间: 2025-02-26T17:02:45.281Z
+初始话题: 人工智能的未来发展趋势
+
+
+--- 轮次 1/5 ---
+模型1 输入:
+人工智能的未来发展趋势
+
+模型1 输出:
+[模型响应失败: 400 deepseek-reasoner does not support successive user or assistant messages (messages[0] and messages[1] in your input). You should interleave the user/assistant messages in the message sequence.]
+
+模型2 输入:
+[模型响应失败: 400 deepseek-reasoner does not support successive user or assistant messages (messages[0] and messages[1] in your input). You should interleave the user/assistant messages in the message sequence.]
+
+模型2 输出:
+[模型响应失败: 400 deepseek-reasoner does not support successive user or assistant messages (messages[0] and messages[1] in your input). You should interleave the user/assistant messages in the message sequence.]
+
+
+--- 轮次 2/5 ---
+模型1 输入:
+[模型响应失败: 400 deepseek-reasoner does not support successive user or assistant messages (messages[0] and messages[1] in your input). You should interleave the user/assistant messages in the message sequence.]
+
+模型1 输出:
+[模型响应失败: 400 deepseek-reasoner does not support successive user or assistant messages (messages[2] and messages[3] in your input). You should interleave the user/assistant messages in the message sequence.]
+
+模型2 输入:
+[模型响应失败: 400 deepseek-reasoner does not support successive user or assistant messages (messages[2] and messages[3] in your input). You should interleave the user/assistant messages in the message sequence.]
+
+模型2 输出:
+[模型响应失败: 400 deepseek-reasoner does not support successive user or assistant messages (messages[0] and messages[1] in your input). You should interleave the user/assistant messages in the message sequence.]
+
+
+--- 轮次 3/5 ---
+模型1 输入:
+[模型响应失败: 400 deepseek-reasoner does not support successive user or assistant messages (messages[0] and messages[1] in your input). You should interleave the user/assistant messages in the message sequence.]
+
+模型1 输出:
+[模型响应失败: 400 deepseek-reasoner does not support successive user or assistant messages (messages[4] and messages[5] in your input). You should interleave the user/assistant messages in the message sequence.]
+
+模型2 输入:
+[模型响应失败: 400 deepseek-reasoner does not support successive user or assistant messages (messages[4] and messages[5] in your input). You should interleave the user/assistant messages in the message sequence.]
+
+模型2 输出:
+[模型响应失败: 400 deepseek-reasoner does not support successive user or assistant messages (messages[0] and messages[1] in your input). You should interleave the user/assistant messages in the message sequence.]
+
+
+--- 轮次 4/5 ---
+模型1 输入:
+[模型响应失败: 400 deepseek-reasoner does not support successive user or assistant messages (messages[0] and messages[1] in your input). You should interleave the user/assistant messages in the message sequence.]
+
+模型1 输出:
+[模型响应失败: 400 deepseek-reasoner does not support successive user or assistant messages (messages[6] and messages[7] in your input). You should interleave the user/assistant messages in the message sequence.]
+
+模型2 输入:
+[模型响应失败: 400 deepseek-reasoner does not support successive user or assistant messages (messages[6] and messages[7] in your input). You should interleave the user/assistant messages in the message sequence.]
+
+模型2 输出:
+[模型响应失败: 400 deepseek-reasoner does not support successive user or assistant messages (messages[0] and messages[1] in your input). You should interleave the user/assistant messages in the message sequence.]
+
+
+--- 轮次 5/5 ---
+模型1 输入:
+[模型响应失败: 400 deepseek-reasoner does not support successive user or assistant messages (messages[0] and messages[1] in your input). You should interleave the user/assistant messages in the message sequence.]
+
+模型1 输出:
+[模型响应失败: 400 deepseek-reasoner does not support successive user or assistant messages (messages[8] and messages[9] in your input). You should interleave the user/assistant messages in the message sequence.]
+
+
+对话结束
+时间: 2025-02-26T17:02:46.190Z
