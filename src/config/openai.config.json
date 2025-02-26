@@ -1,6 +1,22 @@
 {
-  "default": "huoshan-deepseekV3",
+  "default": "deepseekV3",
   "configs": [
+    {
+      "title": "deepseekV3",
+      "apiKey": "sk-76595a859876480cb1de7ed3a7ee9239",
+      "baseURL": "https://api.deepseek.com/",
+      "model": "deepseek-chat",
+      "type": "normal",
+      "compatibleMode": "openai"
+    },
+    {
+      "title": "deepseek-r1",
+      "apiKey": "sk-76595a859876480cb1de7ed3a7ee9239",
+      "baseURL": "https://api.deepseek.com/",
+      "model": "deepseek-reasoner",
+      "type": "reasoner",
+      "compatibleMode": "openai"
+    },
     {
       "title": "huoshan-deepseekV3",
       "apiKey": "877e8151-2569-4337-a3e2-04f6ae9d5157",
