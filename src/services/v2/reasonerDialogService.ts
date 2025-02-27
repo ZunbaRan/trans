@@ -24,8 +24,10 @@ export class ReasonerDialogService {
   private readonly model2PromptFile: string = 'model2_prompt.md';
   private readonly maxRounds: number = 5;
   private readonly maxHistoryRounds: number = 5; // 最多保留的历史对话轮次
-  private currentLogFile: string = '';
+  private currentSessionDir: string = '';
   private currentHistoryFile: string = '';
+  private currentModel1LogFile: string = '';
+  private currentModel2LogFile: string = '';
 
   constructor(logsDir: string) {
     this.logsDir = logsDir;
@@ -43,17 +45,23 @@ export class ReasonerDialogService {
     const dialogHistory: DialogStep[] = [];
     
     try {
-      // 确保日志目录存在
+      // 创建会话目录和日志文件
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+      this.currentSessionDir = path.join(this.dialogLogsDir, `session_${timestamp}`);
+      
+      // 确保目录存在
       await fs.mkdir(this.dialogLogsDir, { recursive: true });
       await fs.mkdir(this.historyDir, { recursive: true });
+      await fs.mkdir(this.currentSessionDir, { recursive: true });
       
-      // 创建新的日志文件和历史文件
-      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-      this.currentLogFile = path.join(this.dialogLogsDir, `dialog_${timestamp}.log`);
+      // 创建模型日志文件和历史文件
+      this.currentModel1LogFile = path.join(this.currentSessionDir, 'model1.log');
+      this.currentModel2LogFile = path.join(this.currentSessionDir, 'model2.log');
       this.currentHistoryFile = path.join(this.historyDir, `history_${timestamp}.jsonl`);
       
-      // 记录对话开始
-      await this.logToDialogFile(`开始执行 Reasoner 模型对话\n时间: ${new Date().toISOString()}\n初始话题: ${initialTopic}\n\n`);
+      // 记录会话开始
+      await this.logToModelFile('model1', `开始执行 Reasoner 模型对话\n时间: ${new Date().toISOString()}\n初始话题: ${initialTopic}\n\n`);
+      await this.logToModelFile('model2', `开始执行 Reasoner 模型对话\n时间: ${new Date().toISOString()}\n初始话题: ${initialTopic}\n\n`);
       
       // 记录用户输入到历史
       await this.appendToHistoryFile({
@@ -73,13 +81,13 @@ export class ReasonerDialogService {
       // 执行对话轮次
       for (let round = 1; round <= this.maxRounds; round++) {
         console.log(`执行对话轮次 ${round}/${this.maxRounds}`);
-        await this.logToDialogFile(`\n--- 轮次 ${round}/${this.maxRounds} ---\n`);
+        
+        // Model1 回应
+        await this.logToModelFile('model1', `\n--- 轮次 ${round}/${this.maxRounds} ---\n`);
+        await this.logToModelFile('model1', `输入:\n${currentContent}\n\n`);
         
         // 构建 Model1 的消息历史
         const model1Messages = await this.buildMessageHistory('model1');
-        
-        // Model1 回应
-        await this.logToDialogFile(`模型1 输入:\n${currentContent}\n\n`);
         
         const model1Response = await this.getModelResponse(
           'deepseek-r1',
@@ -95,7 +103,7 @@ export class ReasonerDialogService {
         });
         
         // 记录 Model1 的回应
-        await this.logToDialogFile(`模型1 输出:\n${model1Response}\n\n`);
+        await this.logToModelFile('model1', `输出:\n${model1Response}\n\n`);
         
         // 记录 Model1 的回应到历史
         await this.appendToHistoryFile({
@@ -108,11 +116,12 @@ export class ReasonerDialogService {
         // 如果已经是最后一轮，则结束对话
         if (round === this.maxRounds) break;
         
+        // Model2 回应 Model1
+        await this.logToModelFile('model2', `\n--- 轮次 ${round}/${this.maxRounds} ---\n`);
+        await this.logToModelFile('model2', `输入:\n${model1Response}\n\n`);
+        
         // 构建 Model2 的消息历史
         const model2Messages = await this.buildMessageHistory('model2');
-        
-        // Model2 回应 Model1
-        await this.logToDialogFile(`模型2 输入:\n${model1Response}\n\n`);
         
         const model2Response = await this.getModelResponse(
           'deepseek-r1',
@@ -128,7 +137,7 @@ export class ReasonerDialogService {
         });
         
         // 记录 Model2 的回应
-        await this.logToDialogFile(`模型2 输出:\n${model2Response}\n\n`);
+        await this.logToModelFile('model2', `输出:\n${model2Response}\n\n`);
         
         // 记录 Model2 的回应到历史
         await this.appendToHistoryFile({
@@ -143,12 +152,15 @@ export class ReasonerDialogService {
       }
       
       // 记录对话结束
-      await this.logToDialogFile(`\n对话结束\n时间: ${new Date().toISOString()}\n`);
+      await this.logToModelFile('model1', `\n对话结束\n时间: ${new Date().toISOString()}\n`);
+      await this.logToModelFile('model2', `\n对话结束\n时间: ${new Date().toISOString()}\n`);
       
       return dialogHistory;
     } catch (error) {
       console.error('执行 Reasoner 模型对话失败:', error);
-      await this.logToDialogFile(`\n对话出错\n时间: ${new Date().toISOString()}\n错误: ${error instanceof Error ? error.message : '未知错误'}\n`);
+      const errorMsg = `\n对话出错\n时间: ${new Date().toISOString()}\n错误: ${error instanceof Error ? error.message : '未知错误'}\n`;
+      await this.logToModelFile('model1', errorMsg);
+      await this.logToModelFile('model2', errorMsg);
       throw error;
     }
   }
@@ -259,6 +271,71 @@ export class ReasonerDialogService {
   }
   
   /**
+   * 记录到模型日志文件
+   */
+  private async logToModelFile(modelType: 'model1' | 'model2', content: string): Promise<void> {
+    try {
+      const logFile = modelType === 'model1' ? this.currentModel1LogFile : this.currentModel2LogFile;
+      await fs.appendFile(logFile, content, 'utf-8');
+    } catch (error) {
+      console.error(`写入${modelType}日志失败:`, error);
+    }
+  }
+  
+  /**
+   * 添加记录到历史文件
+   */
+  private async appendToHistoryFile(record: DialogRecord): Promise<void> {
+    try {
+      // 将记录转换为 JSON 行
+      const jsonLine = JSON.stringify(record) + '\n';
+      
+      // 追加到当前历史文件
+      await fs.appendFile(this.currentHistoryFile, jsonLine, 'utf-8');
+    } catch (error) {
+      console.error('添加记录到历史文件失败:', error);
+    }
+  }
+  
+  /**
+   * 加载最近的历史记录
+   */
+  private async loadRecentHistory(count: number): Promise<DialogRecord[]> {
+    try {
+      // 检查文件是否存在
+      try {
+        await fs.access(this.currentHistoryFile);
+      } catch {
+        // 文件不存在，返回空数组
+        return [];
+      }
+      
+      // 读取文件内容
+      const content = await fs.readFile(this.currentHistoryFile, 'utf-8');
+      
+      // 按行分割并解析 JSON
+      const lines = content.trim().split('\n');
+      const records: DialogRecord[] = [];
+      
+      // 从后向前读取指定数量的记录
+      for (let i = Math.max(0, lines.length - count); i < lines.length; i++) {
+        if (lines[i].trim()) {
+          try {
+            records.push(JSON.parse(lines[i]));
+          } catch (e) {
+            console.error('解析历史记录行失败:', e);
+          }
+        }
+      }
+      
+      return records;
+    } catch (error) {
+      console.error('加载历史记录失败:', error);
+      return [];
+    }
+  }
+  
+  /**
    * 加载提示词
    */
   private async loadPrompt(filename: string): Promise<string> {
@@ -324,76 +401,12 @@ export class ReasonerDialogService {
       throw error;
     }
   }
-  
-  /**
-   * 记录到对话日志文件
-   */
-  private async logToDialogFile(content: string): Promise<void> {
-    try {
-      await fs.appendFile(this.currentLogFile, content, 'utf-8');
-    } catch (error) {
-      console.error('写入对话日志失败:', error);
-    }
-  }
-  
-  /**
-   * 添加记录到历史文件
-   */
-  private async appendToHistoryFile(record: DialogRecord): Promise<void> {
-    try {
-      // 将记录转换为 JSON 行
-      const jsonLine = JSON.stringify(record) + '\n';
-      
-      // 追加到当前历史文件
-      await fs.appendFile(this.currentHistoryFile, jsonLine, 'utf-8');
-    } catch (error) {
-      console.error('添加记录到历史文件失败:', error);
-    }
-  }
-  
-  /**
-   * 加载最近的历史记录
-   */
-  private async loadRecentHistory(count: number): Promise<DialogRecord[]> {
-    try {
-      // 检查文件是否存在
-      try {
-        await fs.access(this.currentHistoryFile);
-      } catch {
-        // 文件不存在，返回空数组
-        return [];
-      }
-      
-      // 读取文件内容
-      const content = await fs.readFile(this.currentHistoryFile, 'utf-8');
-      
-      // 按行分割并解析 JSON
-      const lines = content.trim().split('\n');
-      const records: DialogRecord[] = [];
-      
-      // 从后向前读取指定数量的记录
-      for (let i = Math.max(0, lines.length - count); i < lines.length; i++) {
-        if (lines[i].trim()) {
-          try {
-            records.push(JSON.parse(lines[i]));
-          } catch (e) {
-            console.error('解析历史记录行失败:', e);
-          }
-        }
-      }
-      
-      return records;
-    } catch (error) {
-      console.error('加载历史记录失败:', error);
-      return [];
-    }
-  }
 
   /**
-   * 获取当前日志文件路径
+   * 获取当前会话目录路径
    */
-  public getCurrentLogFile(): string {
-    return this.currentLogFile;
+  public getCurrentSessionDir(): string {
+    return this.currentSessionDir;
   }
 
   /**
@@ -401,6 +414,20 @@ export class ReasonerDialogService {
    */
   public getCurrentHistoryFile(): string {
     return this.currentHistoryFile;
+  }
+  
+  /**
+   * 获取当前模型1日志文件路径
+   */
+  public getCurrentModel1LogFile(): string {
+    return this.currentModel1LogFile;
+  }
+  
+  /**
+   * 获取当前模型2日志文件路径
+   */
+  public getCurrentModel2LogFile(): string {
+    return this.currentModel2LogFile;
   }
 }
 

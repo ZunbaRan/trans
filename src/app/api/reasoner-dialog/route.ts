@@ -47,9 +47,15 @@ import path from 'path';
  *                       content:
  *                         type: string
  *                         example: "人工智能的未来发展将更加注重与人类的协作..."
- *                 logFile:
+ *                 sessionDir:
  *                   type: string
- *                   example: "/logs/reasoner_dialogs/dialog_2023-05-20T12-34-56.log"
+ *                   example: "/logs/reasoner_dialogs/session_2023-05-20T12-34-56"
+ *                 model1LogFile:
+ *                   type: string
+ *                   example: "/logs/reasoner_dialogs/session_2023-05-20T12-34-56/model1.log"
+ *                 model2LogFile:
+ *                   type: string
+ *                   example: "/logs/reasoner_dialogs/session_2023-05-20T12-34-56/model2.log"
  *       400:
  *         description: 请求参数错误
  *       500:
@@ -69,15 +75,22 @@ export async function POST(request: NextRequest) {
     // 执行推理模型对话
     const dialogHistory = await reasonerDialogService.executeDialog(topic.trim());
     
-    // 获取日志文件路径（相对于公共目录）
-    const logFile = reasonerDialogService.getCurrentLogFile();
-    const relativePath = logFile ? path.relative(path.join(process.cwd(), 'public'), logFile) : '';
+    // 获取会话目录路径（相对于公共目录）
+    const sessionDir = reasonerDialogService.getCurrentSessionDir();
+    const model1LogFile = reasonerDialogService.getCurrentModel1LogFile();
+    const model2LogFile = reasonerDialogService.getCurrentModel2LogFile();
+    
+    const relativePath = sessionDir ? path.relative(path.join(process.cwd(), 'public'), sessionDir) : '';
+    const relativeModel1Log = model1LogFile ? path.relative(path.join(process.cwd(), 'public'), model1LogFile) : '';
+    const relativeModel2Log = model2LogFile ? path.relative(path.join(process.cwd(), 'public'), model2LogFile) : '';
     
     return NextResponse.json({
       success: true,
       message: '对话执行完成',
       dialogHistory,
-      logFile: relativePath ? `/${relativePath.replace(/\\/g, '/')}` : null
+      sessionDir: relativePath ? `/${relativePath.replace(/\\/g, '/')}` : null,
+      model1LogFile: relativeModel1Log ? `/${relativeModel1Log.replace(/\\/g, '/')}` : null,
+      model2LogFile: relativeModel2Log ? `/${relativeModel2Log.replace(/\\/g, '/')}` : null
     });
 
   } catch (error) {
