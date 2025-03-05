@@ -12,8 +12,10 @@ export const getApiDocs = () => {
       },
       servers: [
         {
-          url: 'http://localhost:3001',
-          description: '开发环境',
+          url: process.env.NODE_ENV === 'development' 
+            ? 'http://localhost:3001' 
+            : 'https://your-production-url.com',
+          description: process.env.NODE_ENV === 'development' ? '开发环境' : '生产环境',
         },
       ],
     },

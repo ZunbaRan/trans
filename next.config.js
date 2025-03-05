@@ -8,6 +8,7 @@ const nextConfig = {
     };
     return config;
   },
+  transpilePackages: ['next-swagger-doc', 'swagger-ui-react'],
 }
 
 module.exports = nextConfig 

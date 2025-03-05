@@ -1,0 +1,12 @@
+{
+  "timestamp": "2025-03-05 13:37:26",
+  "request": {
+    "messages": [
+      {
+        "role": "user",
+        "content": "hello"
+      }
+    ]
+  },
+  "response": null
+}
