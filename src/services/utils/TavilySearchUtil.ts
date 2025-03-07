@@ -140,17 +140,19 @@ export class TavilySearchUtil {
   }
 
   /**
-   * 从 URL 提取内容
-   * @param urls 单个 URL 或 URL 数组
+   * 批量提取网页内容
+   * @param urls 要提取的URL数组或单个URL
    * @param options 提取选项
-   * @returns 提取的内容
+   * @param targetCount 目标成功提取的数量，默认为5
+   * @returns 提取结果
    */
   public async extract(
     urls: string | string[],
     options?: {
       includeImages?: boolean;
       extractDepth?: 'basic' | 'advanced';
-    }
+    },
+    targetCount: number = 5
   ): Promise<{
     results: Array<{
       url: string;
@@ -169,34 +171,72 @@ export class TavilySearchUtil {
       if (!this.tavilyClient) {
         throw new Error('Tavily 客户端初始化失败');
       }
-      
-      // urls 截取前5个
-      const urlsArray = Array.isArray(urls) ? urls.slice(0, 5) : [urls].slice(0, 5);
-      
-      // 构建请求参数
-      const extractParams = {
-        urls: urlsArray,
-        include_images: options?.includeImages || false,
-        extract_depth: options?.extractDepth || 'basic'
-      };
-      
-      console.log('提取内容参数:', extractParams);
-      
-      // 调用 Tavily API 的 extract 端点
-      const response = await axios.post(
-        'https://api.tavily.com/extract',
-        extractParams,
-        {
-          headers: {
-            'Authorization': `Bearer ${this.apiKey}`,
-            'Content-Type': 'application/json'
+
+      // 将单个URL转换为数组并创建一个副本
+      const urlArray = Array.isArray(urls) ? [...urls] : [urls];
+      let allResults: Array<{
+        url: string;
+        raw_content: string;
+        images: Array<any>;
+      }> = [];
+      let allFailedResults: Array<string> = [];
+      let totalResponseTime = 0;
+
+      // 持续处理直到达到目标数量或没有更多URL可处理
+      while (allResults.length < targetCount && urlArray.length > 0) {
+        // 计算本次需要处理的URL数量
+        const remainingCount = targetCount - allResults.length;
+        const batchSize = Math.min(remainingCount, 5, urlArray.length);
+        
+        // 取出当前批次的URL
+        const currentBatch = urlArray.splice(0, batchSize);
+        
+        // 构建请求参数
+        const extractParams = {
+          urls: currentBatch,
+          include_images: options?.includeImages || false,
+          extract_depth: options?.extractDepth || 'basic'
+        };
+            
+        // 调用 Tavily API 的 extract 端点
+        const response = await axios.post(
+          'https://api.tavily.com/extract',
+          extractParams,
+          {
+            headers: {
+              'Authorization': `Bearer ${this.apiKey}`,
+              'Content-Type': 'application/json'
+            }
           }
-        }
-      );
+        );
+        
+        // 更新结果
+        allResults = [...allResults, ...response.data.results];
+        allFailedResults = [...allFailedResults, ...response.data.failed_results];
+        totalResponseTime += response.data.response_time;
+
+        // 记录本次批次的处理结果
+        console.log('批次处理结果:', {
+          requested: currentBatch.length,
+          succeeded: response.data.results.length,
+          failed: response.data.failed_results.length,
+          totalSucceeded: allResults.length,
+          remaining: targetCount - allResults.length
+        });
+      }
+
+      console.log('提取内容完成:', {
+        totalResults: allResults.length,
+        totalFailed: allFailedResults.length,
+        totalResponseTime,
+        remainingUrls: urlArray.length
+      });
       
-      console.log('提取内容响应:', response.data);
-      
-      return response.data;
+      return {
+        results: allResults,
+        failed_results: allFailedResults,
+        response_time: totalResponseTime
+      };
     } catch (error) {
       console.error('Tavily 内容提取失败:', error);
       throw error;
@@ -206,13 +246,11 @@ export class TavilySearchUtil {
   /**
    * 搜索并提取内容
    * @param query 搜索查询
-   * @param maxUrls 最大提取的 URL 数量
    * @param options 搜索和提取选项
    * @returns 搜索结果和提取的内容
    */
   public async searchAndExtract(
     query: string,
-    maxUrls: number = 3,
     options?: {
       searchDepth?: 'basic' | 'advanced';
       includeAnswer?: boolean;
@@ -234,7 +272,7 @@ export class TavilySearchUtil {
     try {
       // 执行搜索
       const searchResponse = await this.search(query, {
-        searchDepth: options?.searchDepth || 'basic',
+        searchDepth: options?.searchDepth || 'advanced',
         includeAnswer: options?.includeAnswer || false
       });
       
@@ -250,16 +288,14 @@ export class TavilySearchUtil {
         };
       }
       
-      // 获取前 N 个 URL
-      const urls = searchResponse.results
-        .slice(0, maxUrls)
-        .map(result => result.url);
+      // 获取所有 URL
+      const urls = searchResponse.results.map(result => result.url);
       
       console.log('准备提取内容的 URL:', urls);
       
       // 提取内容
       const extractedContents = await this.extract(urls, {
-        extractDepth: options?.extractDepth || 'basic',
+        extractDepth: options?.extractDepth || 'advanced',
         includeImages: options?.includeImages || false
       });
       

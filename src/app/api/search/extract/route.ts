@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { tavilySearchUtil } from '@/services/v2/utils/TavilySearchUtil';
+import { tavilySearchUtil } from '@/services/utils/TavilySearchUtil';
 
 /**
  * @swagger
@@ -61,8 +61,13 @@ import { tavilySearchUtil } from '@/services/v2/utils/TavilySearchUtil';
  */
 export async function POST(request: NextRequest) {
   try {
-    const { query, maxUrls = 3, options = {} } = await request.json();
-    
+    const { query, options = {
+      searchDepth: 'advanced',
+      includeAnswer: true,
+      extractDepth: 'advanced',
+      includeImages: false
+    } } = await request.json();
+
     if (!query || typeof query !== 'string' || query.trim() === '') {
       return NextResponse.json(
         { error: '请提供有效的搜索查询' },
@@ -73,10 +78,9 @@ export async function POST(request: NextRequest) {
     // 执行搜索并提取内容
     const result = await tavilySearchUtil.searchAndExtract(
       query.trim(),
-      maxUrls,
       options
     );
-    
+
     return NextResponse.json({
       success: true,
       searchResponse: result.searchResponse,

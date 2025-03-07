@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { tavilySearchUtil } from '@/services/v2/utils/TavilySearchUtil';
+import { tavilySearchUtil } from '@/services/utils/TavilySearchUtil';
 
 /**
  * @swagger

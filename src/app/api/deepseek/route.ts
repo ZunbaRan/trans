@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { deepseekUtil } from '@/services/v2/utils/deepseekUtil';
+import { deepseekUtil } from '@/services/utils/deepseekUtil';
 import * as fs from 'fs/promises';
 import path from 'path';
 

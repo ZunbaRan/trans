@@ -1,9 +1,9 @@
 import * as fs from 'fs/promises';
 import path from 'path';
-import { openAIClient } from '../openaiClient';
+import { openAIClient } from '../../utils/openaiClient';
 import { SummaryAnalyzer } from './summaryAnalyzer';
 import { ThinkingAnalyzer } from './thinkingAnalyzer';
-import { AnalyzerUtils } from '../utils/analyzerUtils';
+import { AnalyzerUtils } from '../../utils/analyzerUtils';
 import { FunnyAnalyzer } from './funnyAnalyzer';
 
 interface AnalysisStep {

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { reasonerDialogService } from '@/services/v2/reasonerDialogService';
+import { reasonerDialogService } from '@/services/node/reasonerDialogService';
 import path from 'path';
 
 /**

@@ -1,6 +1,6 @@
 import * as fs from 'fs/promises';
 import path from 'path';
-import { openAIClient } from '../openaiClient';
+import { openAIClient } from '../../utils/openaiClient';
 
 export class ArticleCreator {
   private readonly normalPromptsDir = path.join(process.cwd(), 'src/prompt/cn/articles/normal');

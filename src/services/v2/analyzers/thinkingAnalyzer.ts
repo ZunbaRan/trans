@@ -1,7 +1,7 @@
 import * as fs from 'fs/promises';
 import path from 'path';
-import { openAIClient } from '../openaiClient';
-import { AnalyzerUtils } from '../utils/analyzerUtils';
+import { openAIClient } from '../../utils/openaiClient';
+import { AnalyzerUtils } from '../../utils/analyzerUtils';
 
 interface ThinkingStep {
   name: string;
