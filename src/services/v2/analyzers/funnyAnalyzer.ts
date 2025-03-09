@@ -1,7 +1,7 @@
 import * as fs from 'fs/promises';
 import path from 'path';
 import { openAIClient } from '../../utils/openaiClient';
-import { AnalyzerUtils } from '../../utils/analyzerUtils';
+import { AnalyzerUtils } from '../analyzerUtils';
 
 interface FunnyStep {
   name: string;

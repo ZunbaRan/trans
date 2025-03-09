@@ -172,6 +172,8 @@ export class TavilySearchUtil {
         throw new Error('Tavily 客户端初始化失败');
       }
 
+      // 打印 urls 的数量
+      console.log('准备提取内容的 URL 数量:', urls.length);
       // 将单个URL转换为数组并创建一个副本
       const urlArray = Array.isArray(urls) ? [...urls] : [urls];
       let allResults: Array<{

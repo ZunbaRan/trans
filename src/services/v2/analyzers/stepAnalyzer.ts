@@ -3,7 +3,7 @@ import path from 'path';
 import { openAIClient } from '../../utils/openaiClient';
 import { SummaryAnalyzer } from './summaryAnalyzer';
 import { ThinkingAnalyzer } from './thinkingAnalyzer';
-import { AnalyzerUtils } from '../../utils/analyzerUtils';
+import { AnalyzerUtils } from '../analyzerUtils';
 import { FunnyAnalyzer } from './funnyAnalyzer';
 
 interface AnalysisStep {

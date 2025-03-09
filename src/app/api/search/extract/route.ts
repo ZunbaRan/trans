@@ -18,27 +18,6 @@ import { tavilySearchUtil } from '@/services/utils/TavilySearchUtil';
  *                 type: string
  *                 description: 搜索查询
  *                 example: "中国最新的人工智能政策"
- *               maxUrls:
- *                 type: number
- *                 description: 最大提取的 URL 数量
- *                 example: 3
- *               options:
- *                 type: object
- *                 properties:
- *                   searchDepth:
- *                     type: string
- *                     enum: [basic, advanced]
- *                     example: "basic"
- *                   includeAnswer:
- *                     type: boolean
- *                     example: true
- *                   extractDepth:
- *                     type: string
- *                     enum: [basic, advanced]
- *                     example: "basic"
- *                   includeImages:
- *                     type: boolean
- *                     example: false
  *     responses:
  *       200:
  *         description: 搜索并提取成功
@@ -64,7 +43,7 @@ export async function POST(request: NextRequest) {
     const { query, options = {
       searchDepth: 'advanced',
       includeAnswer: true,
-      extractDepth: 'advanced',
+      extractDepth: 'basic',
       includeImages: false
     } } = await request.json();
 

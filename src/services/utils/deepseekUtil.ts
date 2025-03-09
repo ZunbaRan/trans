@@ -2,6 +2,10 @@ import axios from 'axios';
 import * as fs from 'fs/promises';
 import path from 'path';
 import moment from 'moment';
+import { createModuleLogger } from './logger';
+
+// 创建模块特定的日志记录器
+const logger = createModuleLogger('deepseek-util');
 
 interface Message {
   role: 'user' | 'assistant';
@@ -63,7 +67,7 @@ export class DeepSeekUtil {
 
   constructor(
     configTitle: string = 'deepseek-r1',
-    logDir: string = path.join(process.cwd(), 'logs/deepseek')
+    logDir: string = path.join(process.cwd(), 'public/logs/deepseek')
   ) {
     this.logDir = logDir;
     this.loadConfig(configTitle);
@@ -127,16 +131,12 @@ export class DeepSeekUtil {
         model: this.model,
         messages,
         stream: false,
-        max_tokens: options.max_tokens || 2048,
-        frequency_penalty: options.frequency_penalty || 0.5,
+        max_tokens: options.max_tokens || 4096,
         n: 1,
         response_format: {
           type: 'text'
         }
       };
-
-      // 记录请求
-      await this.logConversation(messages, null);
 
       // 发送请求
       const response = await axios({
@@ -180,20 +180,44 @@ export class DeepSeekUtil {
         content: response.choices[0]?.message?.content,
         reasoning_content: response.choices[0]?.message?.reasoning_content
       } : null;
-
       // 创建日志内容
-      const logContent = {
-        timestamp: moment().format('YYYY-MM-DD HH:mm:ss'),
-        request: {
-          messages
-        },
-        response: responseContent
-      };
 
-      // 写入日志文件
-      await fs.writeFile(logFile, JSON.stringify(logContent, null, 2), 'utf-8');
+      // const logContent = {
+      //   timestamp: moment().format('YYYY-MM-DD HH:mm:ss'),
+      //   request: {
+      //     messages
+      //   },
+      //   response: responseContent
+      // };
+      // // 写入日志文件
+      // await fs.writeFile(logFile, JSON.stringify(logContent, null, 2), 'utf-8');
+
+    
+      
+      // 使用 logger 记录信息
+      logger.info('对话已记录到文件', { 
+        logFile,
+        requestMessagesCount: messages.length,
+        hasResponse: !!response,
+        model: this.model
+      });
+      
+      // 记录请求和响应的简要信息
+      logger.debug('对话详情', {
+        lastUserMessage: messages.length > 0 ? 
+          messages[messages.length - 1].content.substring(0, 100) + '...': '',
+        responsePreview: responseContent?.content ? 
+          responseContent.content.substring(0, 100) + '...': '无响应',
+        responseReason: responseContent?.reasoning_content ? 
+          responseContent.reasoning_content.substring(0, 100) + '...': '无推理'
+      });
     } catch (error) {
-      console.error('记录对话失败:', error);
+      // 使用 logger 记录错误
+      logger.error('记录对话失败', { 
+        error, 
+        messagesCount: messages.length,
+        logDir: this.logDir
+      });
     }
   }
 

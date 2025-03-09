@@ -2,7 +2,7 @@ import * as fs from 'fs/promises';
 import path from 'path';
 import { openAIClient } from '../utils/openaiClient';
 import { StepAnalyzer } from './analyzers/stepAnalyzer';
-import { AnalyzerUtils } from '../utils/analyzerUtils';
+import { AnalyzerUtils } from './analyzerUtils';
 
 export interface ThemeSection {
   theme: string;

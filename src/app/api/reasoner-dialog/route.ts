@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { reasonerDialogService } from '@/services/node/reasonerDialogService';
+import { reasonerDialogService } from '@/services/workflow/node/reasonerDialogService';
 import path from 'path';
 
 /**
@@ -77,20 +77,20 @@ export async function POST(request: NextRequest) {
     
     // 获取会话目录路径（相对于公共目录）
     const sessionDir = reasonerDialogService.getCurrentSessionDir();
-    const model1LogFile = reasonerDialogService.getCurrentModel1LogFile();
-    const model2LogFile = reasonerDialogService.getCurrentModel2LogFile();
+    const rulerLogFile = reasonerDialogService.getCurrentRulerLogFile();
+    const creatorLogFile = reasonerDialogService.getCurrentCreatorLogFile();
     
     const relativePath = sessionDir ? path.relative(path.join(process.cwd(), 'public'), sessionDir) : '';
-    const relativeModel1Log = model1LogFile ? path.relative(path.join(process.cwd(), 'public'), model1LogFile) : '';
-    const relativeModel2Log = model2LogFile ? path.relative(path.join(process.cwd(), 'public'), model2LogFile) : '';
+    const relativeRulerLog = rulerLogFile ? path.relative(path.join(process.cwd(), 'public'), rulerLogFile) : '';
+    const relativeCreatorLog = creatorLogFile ? path.relative(path.join(process.cwd(), 'public'), creatorLogFile) : '';
     
     return NextResponse.json({
       success: true,
       message: '对话执行完成',
       dialogHistory,
       sessionDir: relativePath ? `/${relativePath.replace(/\\/g, '/')}` : null,
-      model1LogFile: relativeModel1Log ? `/${relativeModel1Log.replace(/\\/g, '/')}` : null,
-      model2LogFile: relativeModel2Log ? `/${relativeModel2Log.replace(/\\/g, '/')}` : null
+      rulerLogFile: relativeRulerLog ? `/${relativeRulerLog.replace(/\\/g, '/')}` : null,
+      creatorLogFile: relativeCreatorLog ? `/${relativeCreatorLog.replace(/\\/g, '/')}` : null
     });
 
   } catch (error) {
