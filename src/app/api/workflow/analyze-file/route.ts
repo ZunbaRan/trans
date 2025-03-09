@@ -54,8 +54,11 @@ import logger from '@/services/utils/logger';
  *         description: 服务器错误
  */
 export async function POST(request: NextRequest) {
+  let filePath = ''; // 在函数顶部声明变量
+  
   try {
-    const { filePath } = await request.json();
+    const requestData = await request.json();
+    filePath = requestData.filePath; // 赋值
     
     if (!filePath || typeof filePath !== 'string' || filePath.trim() === '') {
       logger.warn('请求缺少有效的文件路径');
@@ -77,19 +80,30 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : '未知错误';
+    const errorStack = error instanceof Error ? error.stack : undefined;
     
     // 处理特定错误
     if (errorMessage.includes('文件不存在')) {
-      logger.error('文件不存在', { error });
+      logger.error('文件不存在', { error: { message: errorMessage, stack: errorStack }, filePath });
       return NextResponse.json(
         { error: `文件不存在: ${errorMessage}` },
         { status: 404 }
       );
     }
     
-    logger.error('文件分析失败', { error });
+    logger.error('文件分析失败', { 
+      error: { 
+        message: errorMessage, 
+        stack: errorStack,
+        type: error.constructor.name
+      },
+      filePath // 现在 filePath 在作用域内
+    });
     return NextResponse.json(
-      { error: `操作失败: ${errorMessage}` },
+      { 
+        error: `操作失败: ${errorMessage}`,
+        stack: process.env.NODE_ENV === 'development' ? errorStack : undefined
+      },
       { status: 500 }
     );
   }

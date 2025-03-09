@@ -82,10 +82,10 @@ export class DeepSeekUtil {
       const configPath = path.join(process.cwd(), 'src/config/openai.config.json');
       const configData = await fs.readFile(configPath, 'utf-8');
       const config: OpenAIConfigFile = JSON.parse(configData);
-      
+
       // 查找指定标题的配置
       const targetConfig = config.configs.find(c => c.title === configTitle);
-      
+
       if (!targetConfig) {
         console.warn(`未找到标题为 "${configTitle}" 的配置，使用默认配置`);
         this.apiKey = '877e8151-2569-4337-a3e2-04f6ae9d5157';
@@ -138,6 +138,12 @@ export class DeepSeekUtil {
         }
       };
 
+      logger.info('发送请求到 DeepSeek API', {
+        url: this.url,
+        model: this.model,
+        messagesCount: messages.length
+      });
+
       // 发送请求
       const response = await axios({
         method: 'post',
@@ -149,12 +155,42 @@ export class DeepSeekUtil {
         }
       });
 
-      // 记录响应
-      await this.logConversation(messages, response.data);
+      // 尝试记录对话，但不让日志错误影响主流程
+      try {
+        await this.logConversation(messages, response.data);
+      } catch (logError) {
+        // 只记录错误，但不抛出
+        logger.error('记录对话失败，但继续执行', {
+          error: logError instanceof Error ? {
+            message: logError.message,
+            stack: logError.stack
+          } : String(logError)
+        });
+      }
 
       return response.data;
     } catch (error) {
-      console.error('DeepSeek API 请求错误:', error);
+      // 增强错误日志
+      logger.error('DeepSeek API 请求错误', {
+        error: error instanceof Error ? {
+          message: error.message,
+          stack: error.stack,
+          name: error.name
+        } : String(error),
+        url: this.url,
+        model: this.model,
+        messagesPreview: messages.length > 0 ?
+          messages[messages.length - 1].content.substring(0, 100) + '...' : ''
+      });
+
+      // 如果是 axios 错误，记录更多详细信息
+      if (error instanceof Error) {
+        logger.error('API 响应错误详情', {
+          status: error.message,
+          stack: error.stack
+        });
+      }
+
       throw error;
     }
   }
@@ -182,39 +218,20 @@ export class DeepSeekUtil {
       } : null;
       // 创建日志内容
 
-      // const logContent = {
-      //   timestamp: moment().format('YYYY-MM-DD HH:mm:ss'),
-      //   request: {
-      //     messages
-      //   },
-      //   response: responseContent
-      // };
-      // // 写入日志文件
-      // await fs.writeFile(logFile, JSON.stringify(logContent, null, 2), 'utf-8');
+      const logContent = {
+        timestamp: moment().format('YYYY-MM-DD HH:mm:ss'),
+        request: {
+          messages
+        },
+        response: responseContent
+      };
+      // 写入日志文件
+      await fs.writeFile(logFile, JSON.stringify(logContent, null, 2), 'utf-8');
 
-    
-      
-      // 使用 logger 记录信息
-      logger.info('对话已记录到文件', { 
-        logFile,
-        requestMessagesCount: messages.length,
-        hasResponse: !!response,
-        model: this.model
-      });
-      
-      // 记录请求和响应的简要信息
-      logger.debug('对话详情', {
-        lastUserMessage: messages.length > 0 ? 
-          messages[messages.length - 1].content.substring(0, 100) + '...': '',
-        responsePreview: responseContent?.content ? 
-          responseContent.content.substring(0, 100) + '...': '无响应',
-        responseReason: responseContent?.reasoning_content ? 
-          responseContent.reasoning_content.substring(0, 100) + '...': '无推理'
-      });
     } catch (error) {
       // 使用 logger 记录错误
-      logger.error('记录对话失败', { 
-        error, 
+      logger.error('记录对话失败', {
+        error,
         messagesCount: messages.length,
         logDir: this.logDir
       });

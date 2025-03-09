@@ -20,7 +20,7 @@ export class FirstCreateService {
 
   constructor() {
     // 确保日志目录存在
-    this.ensureLogDir();
+    // this.ensureLogDir();
   }
 
   /**
@@ -54,8 +54,7 @@ export class FirstCreateService {
    * @returns 生成的文章开头段落
    */
   public async createFirstParagraph(originContent: AnalysisResult): Promise<string> {
-    try {
-      console.info('开始创建文章开头段落', { 
+      logger.info('开始创建文章开头段落', { 
         theme: originContent.theme,
         sectionsCount: originContent.sections.length 
       });
@@ -66,21 +65,22 @@ export class FirstCreateService {
       // 读取半佛仙人文风参考
       const banfo = await fs.readFile(path.join(process.cwd(), 'src/prompt/v3/banfo.md'), 'utf-8');
 
-      // 将 AnalysisResult 转换为字符串
-      const originContentStr = JSON.stringify({
-        theme: originContent.theme,
-        time_line: originContent.time_line,
-        sections: originContent.sections
-      }, null, 2);
-      
+      // originContent 转 json 字符串, 如果存在为空的属性，则删除该属性
+      const originContentJson = JSON.stringify(originContent, (key, value) => {
+        if (value === null || value === undefined) {
+          return undefined;
+        }
+        return value;
+      }, 2);
+
       // 替换提示词中的占位符
       const finalPrompt = firstWritePrompt
         .replace('{$theme}', originContent.theme)
-        .replace('{$orign_content}', originContentStr)
+        .replace('{$orign_content}', originContentJson)
         .replace('{$banfo}', banfo);
       
       // 日志记录 finalPrompt
-      console.debug('创建了最终提示词', { promptLength: finalPrompt.length, finalPrompt: finalPrompt });
+      // logger.debug('创建了最终提示词', { promptLength: finalPrompt.length, finalPrompt: finalPrompt });
       
       // 调用 DeepSeek 模型
       const response = await deepseekUtil.chat([
@@ -93,16 +93,13 @@ export class FirstCreateService {
       // 记录生成结果
     //   await this.logGenerationResult(originContent.theme, generatedContent);
       
-      console.info('文章开头段落创建完成', { 
+      logger.info('文章开头段落创建完成', { 
         theme: originContent.theme,
         contentLength: generatedContent.length 
       });
       
       return generatedContent;
-    } catch (error) {
-      logger.error('创建文章开头段落失败', { error, theme: originContent.theme });
-      throw error;
-    }
+ 
   }
 
   /**
@@ -122,7 +119,7 @@ export class FirstCreateService {
       };
       
       await fs.writeFile(logFile, JSON.stringify(logContent, null, 2), 'utf-8');
-      console.debug('生成结果已记录到文件', { logFile });
+      logger.debug('生成结果已记录到文件', { logFile });
     } catch (error) {
       logger.error('记录生成结果失败', { error });
     }

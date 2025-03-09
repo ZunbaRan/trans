@@ -21,7 +21,7 @@ export class WorkflowService {
      * @returns 分析结果
      */
     public async analyzeContentFromFile(filePath: string): Promise<string> {
-        try {
+        
             console.info('开始从文件中提取和分析内容', { filePath });
 
             // 确保文件路径是绝对路径
@@ -58,26 +58,20 @@ export class WorkflowService {
                 themesCount: results.length
             });
 
-            // 返回结果为 AnalysisResult[] 获取第一个元素
-            const result =
-                results[0];
-            // 文章的主题
-            const theme = result.theme 
+            // 循环results
+            for (const result of results) {
+                // 文章的主题
+                const theme = result.theme
 
-            // 调用 firstCreateService 方法进行创作
-            const firstParagraph = await firstCreateService.createFirstParagraph(result);
+                // 调用 firstCreateService 方法进行创作
+                const firstParagraph = await firstCreateService.createFirstParagraph(result);
 
-            // 调用 reasonerDialogService 方法进行对话
-            const dialogHistory = await reasonerDialogService.executeDialog(theme, firstParagraph);
+                // 调用 reasonerDialogService 方法进行对话
+                const dialogHistory = await reasonerDialogService.executeDialog(theme, firstParagraph);
+            }
 
-
-
-
-            return dialogHistory;
-        } catch (error) {
-            logger.error('从文件中提取和分析内容失败', { error, filePath });
-            throw error;
-        }
+            return 'success';
+       
     }
 
     /**
@@ -132,7 +126,15 @@ export class WorkflowService {
 
             return analysisResults;
         } catch (error) {
-            logger.error('执行工作流失败', { error, filePath });
+            // 增强错误日志记录
+            logger.error('执行工作流失败', { 
+                error: error instanceof Error ? {
+                    message: error.message,
+                    stack: error.stack,
+                    name: error.name
+                } : String(error), 
+                filePath 
+            });
             throw error;
         }
     }
