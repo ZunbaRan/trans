@@ -46,9 +46,7 @@ export class TavilySearchUtil {
       
       this.apiKey = config.apiKey;
       this.tavilyClient = tavily({ apiKey: this.apiKey });
-      
-      logger.info('Tavily 配置加载成功');
-    } catch (error) {
+          } catch (error) {
       logger.error('加载 Tavily 配置失败:', error);
       throw new Error('无法加载 Tavily 配置');
     }

@@ -61,23 +61,21 @@ export class WebContentExtractor {
       // 调用 DeepSeek V3 模型
       const response = await openAIClient.executeWithModel("deepseekV3", async (client, model) => {
         return await openAIClient.chat([
-          { role: 'user', content: finalPrompt }
+          { role: "user", content: finalPrompt }
         ], {
-          model: model,  // 指定使用 DeepSeek V3 模型
+          model: model,
           temperature: 1.0
         });
       });
-      
-      // 提取响应内容
-      const extractedContent = response.choices[0]?.message?.content || '';
+      const result =  response.choices[0]?.message?.content || '';
       
       // 记录提取结果
       logger.info('内容提取完成', { 
         theme, 
-        content: extractedContent 
+        content: result 
       });
       
-      return extractedContent;
+      return result;
     } catch (error) {
       logger.error('提取网页内容失败', { error, theme });
       throw error;

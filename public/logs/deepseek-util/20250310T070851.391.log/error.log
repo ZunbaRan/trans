@@ -1,7 +1,0 @@
-[2025-03-10 15:22:01] [ERROR]: 记录对话失败
-{
-  "module": "deepseek-util",
-  "error": {},
-  "messagesCount": 1,
-  "logDir": "/Users/loloru/vscodeProjects/transNode/trans/public/logs/deepseek"
-}

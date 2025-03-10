@@ -1,5 +1,0 @@
-[2025-03-10 13:41:45] [ERROR]: 加载 Tavily 配置失败: Cannot create property 'Symbol(level)' on string 'Tavily 配置加载成功'
-{
-  "module": "TavilySearchUtil",
-  "stack": "TypeError: Cannot create property 'Symbol(level)' on string 'Tavily 配置加载成功'\n    at DerivedLogger.log (webpack-internal:///(rsc)/./node_modules/winston/lib/winston/logger.js:163:26)\n    at TavilySearchUtil.loadConfig (webpack-internal:///(rsc)/./src/services/utils/TavilySearchUtil.ts:41:20)"
-}

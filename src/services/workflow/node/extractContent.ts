@@ -83,7 +83,7 @@ export class ExtractContentService {
       results = JSON.parse(jsonMatch);
     } catch (error) {
       // 调用 DeepSeek v3 进行数据校对
-      const response = await openAIClient.executeWithFallback(async (client, model) => {
+      const response = await openAIClient.executeWithModel("deepseekV3", async (client, model) => {
         const result = await openAIClient.chat([
           { role: 'user', content: `
             当前内容在程序中检测不符合 json 格式, 请你帮忙处理为正确的 json 格式并返回，
