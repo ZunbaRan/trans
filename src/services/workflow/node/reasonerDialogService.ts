@@ -240,20 +240,22 @@ export class ReasonerDialogService {
       // 提取实际内容集合
       const contents = extractedContents.results.map((item) => item.raw_content);
 
-      // 将 contents 拼接成一个字符串
-      const webSearchContent = contents.join('\n\n');
-
-      // 对 webSearchContent 去掉网页 html等标签
-      const webSearchContentRep = webSearchContent.replace(/<[^>]*>?/g, '');
-
-      // 使用 WebContentExtractor 提取网页内容
-      const webContent = await webContentExtractor.extractContent(referenceContent, webSearchContentRep);
+      let finalWebJsonl = '';
+      // 循环contents
+      for(let i = 0; i < contents.length; i++) {
+        const content = contents[i];
+        // 对 content 去掉网页 html等标签
+        const contentRep = content.replace(/<[^>]*>?/g, '');
+        // 使用 WebContentExtractor 提取网页内容
+        const webContent = await webContentExtractor.extractContent(referenceContent, contentRep);
+        finalWebJsonl  += webContent + '\n';
+      }
 
       const searchTemplate = `
     # 以下内容是基于用户发送的消息的网络搜索结果, 可以参考网络搜索内容辅助创作。:
       {$search_results}
     `
-      let searchResults = searchTemplate.replace('{$search_results}', webContent);
+      let searchResults = searchTemplate.replace('{$search_results}', finalWebJsonl);
 
       return searchResults;
     } catch (error) {
@@ -358,7 +360,7 @@ export class ReasonerDialogService {
 
     const banfo = await fs.readFile(path.join(process.cwd(), 'src/prompt/v3/banfo.md'), 'utf-8');
 
-    creatorPrompt.replace('{$next_instruction}', rulerStructuredData.next_instruction)
+    const finalCreatorPrompt = creatorPrompt.replace('{$next_instruction}', rulerStructuredData.next_instruction)
       .replace('{$current_text}', currentContent)
       .replace('{$banfo}', banfo);
 
@@ -368,7 +370,7 @@ export class ReasonerDialogService {
     // 添加系统消息
     messages.unshift({
       role: 'user',
-      content: creatorPrompt
+      content: finalCreatorPrompt
     });
 
     try {

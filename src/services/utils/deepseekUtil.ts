@@ -116,76 +116,102 @@ export class DeepSeekUtil {
     messages: Message[],
     options: {
       max_tokens?: number;
-      frequency_penalty?: number;
-      presence_penalty?: number;
+      retries?: number;
     } = {}
   ): Promise<ChatCompletionResponse> {
-    try {
-      // 确保配置已加载
-      if (!this.apiKey || !this.url || !this.model) {
-        await this.loadConfig('deepseek-r1');
-      }
+    // 设置默认重试次数
+    const maxRetries = options.retries || 3;
+    let retryCount = 0;
+    let lastError: any = null;
 
-      // 准备请求数据
-      const data: ChatCompletionRequest = {
-        model: this.model,
-        messages,
-        stream: false,
-        max_tokens: options.max_tokens || 4096,
-        response_format: {
-          type: 'text'
+    while (retryCount <= maxRetries) {
+      try {
+        // 确保配置已加载
+        if (!this.apiKey || !this.url || !this.model) {
+          await this.loadConfig('deepseek-r1');
         }
-      };
 
-      logger.info('发送请求到 DeepSeek API', {
-        url: this.url,
-        model: this.model,
-        messagesCount: messages.length
-      });
+        // 准备请求数据
+        const data: ChatCompletionRequest = {
+          model: this.model,
+          messages,
+          stream: false,
+          max_tokens: options.max_tokens || 8192,
+          response_format: {
+            type: 'text'
+          }
+        };
 
-      // 发送请求
-      const response = await axios({
-        method: 'post',
-        url: this.url,
-        data,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.apiKey}`
-        }
-      });
-
-      await this.logConversation(messages, response.data);
-
-      return response.data;
-    } catch (error) {
-      // 增强错误日志
-      logger.error('DeepSeek API 请求错误', {
-        error: error instanceof Error ? {
-          message: error.message,
-          stack: error.stack,
-          name: error.name
-        } : String(error),
-        url: this.url,
-        model: this.model,
-        messagesPreview: messages.length > 0 ?
-          messages[messages.length - 1].content.substring(0, 100) + '...' : ''
-      });
-
-      // 如果是 axios 错误，记录更多详细信息
-      if (error instanceof Error) {
-        logger.error('API 响应错误详情', {
-          status: error.message,
-          stack: error.stack
+        logger.info('发送请求到 DeepSeek API', {
+          url: this.url,
+          model: this.model,
+          messages: messages
         });
-      }
 
-      throw error;
+        // 发送请求
+        const response = await axios({
+          method: 'post',
+          url: this.url,
+          data,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${this.apiKey}`
+          }
+        });
+
+        // 尝试记录对话，但不让日志错误影响主流程
+        await this.logConversation(messages, response.data);
+       
+
+        // 检查响应是否有效
+        if (!response.data || !response.data.choices || 
+            !response.data.choices[0] || 
+            !response.data.choices[0].message ||
+            !response.data.choices[0].message.content) {
+          
+          // 如果是最后一次重试，则抛出错误
+          if (retryCount >= maxRetries) {
+            throw new Error('API 响应格式不正确或内容为空');
+          }
+          
+          // 否则重试
+          retryCount++;
+          logger.warn(`API 响应内容为空，正在重试 (${retryCount}/${maxRetries})...`);
+          
+          // 等待一段时间再重试（指数退避）
+          await new Promise(resolve => setTimeout(resolve, 1000 * Math.pow(2, retryCount)));
+          continue;
+        }
+
+        return response.data;
+      } catch (error) {
+        lastError = error;
+        
+        // 如果是最后一次重试，则记录错误并抛出
+        if (retryCount >= maxRetries) {
+          logger.error('DeepSeek API 请求错误', error);
+          throw error;
+        }
+        
+        // 否则重试
+        retryCount++;
+        logger.warn(`API 请求失败，正在重试 (${retryCount}/${maxRetries})...`, {
+          error: error instanceof Error ? error.message : String(error)
+        });
+        
+        // 等待一段时间再重试（指数退避）
+        await new Promise(resolve => setTimeout(resolve, 1000 * Math.pow(2, retryCount)));
+      }
     }
+
+    // 如果所有重试都失败，抛出最后一个错误
+    logger.error('所有重试都失败', lastError);
+    throw lastError;
   }
 
   /**
    * 记录对话到日志文件
-   * @param messages 消息数组
+   * @param messages 请求消息
    * @param response API 响应
    */
   private async logConversation(
@@ -199,30 +225,30 @@ export class DeepSeekUtil {
       const timestamp = moment().format('YYYY-MM-DD-HH-mm-ss');
       const logFile = path.join(this.logDir, `conversation-${timestamp}.json`);
 
-      // 提取需要记录的响应内容
-      const responseContent = response ? {
-        content: response.choices[0]?.message?.content,
-        reasoning_content: response.choices[0]?.message?.reasoning_content
-      } : null;
-      // 创建日志内容
-
+      // 安全地创建日志内容，避免循环引用
       const logContent = {
         timestamp: moment().format('YYYY-MM-DD HH:mm:ss'),
         request: {
-          messages
+          messages: messages.map(m => ({ ...m })) // 创建消息的浅拷贝
         },
-        response: responseContent
+        response: response ? {
+          id: response.id,
+          model: response.model,
+          choices: response.choices ? response.choices.map(c => ({
+            index: c.index,
+            message: c.message ? {
+              role: c.message.role,
+              content: c.message.content
+            } : null
+          })) : null
+        } : null
       };
+
       // 写入日志文件
       await fs.writeFile(logFile, JSON.stringify(logContent, null, 2), 'utf-8');
-
     } catch (error) {
-      // 使用 logger 记录错误
-      logger.error('记录对话失败', {
-        error,
-        messagesCount: messages.length,
-        logDir: this.logDir
-      });
+      // 使用简单的错误记录，避免复杂对象
+      logger.error('记录对话失败', error instanceof Error ? error.message : String(error));
     }
   }
 
