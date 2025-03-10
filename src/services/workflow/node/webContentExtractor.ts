@@ -74,7 +74,7 @@ export class WebContentExtractor {
       // 记录提取结果
       logger.info('内容提取完成', { 
         theme, 
-        contentLength: extractedContent.length 
+        content: extractedContent 
       });
       
       return extractedContent;
@@ -83,6 +83,7 @@ export class WebContentExtractor {
       throw error;
     }
   }
+}
 
 // 导出单例
 export const webContentExtractor = new WebContentExtractor(); 

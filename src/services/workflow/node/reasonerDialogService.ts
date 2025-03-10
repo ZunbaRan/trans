@@ -3,6 +3,8 @@ import path from 'path';
 // deepseekutils
 import { deepseekUtil } from '../../utils/deepseekUtil';
 import { createModuleLogger } from '../../utils/logger';
+import { tavilySearchUtil } from '../../utils/TavilySearchUtil';
+import { webContentExtractor } from './webContentExtractor';
 
 // 创建模块特定的日志记录器
 const logger = createModuleLogger('reasoner-dialog');
@@ -58,7 +60,7 @@ export class ReasonerDialogService {
    * @param initialTopic 初始话题
    * @returns 对话历史记录
    */
-  public async executeDialog(theme: string, initialTopic: string, needSearch: boolean = false): Promise<string> {
+  public async executeDialog(theme: string, initialTopic: string): Promise<string> {
     logger.info('开始执行 Reasoner 模型对话', { initialTopic });
 
     // 创建对话历史记录
@@ -76,8 +78,6 @@ export class ReasonerDialogService {
     let currentContent = initialTopic;
     let finalContent = '';
     let isEnd = 'no';
-
-    const banfo = await fs.readFile(path.join(process.cwd(), 'src/prompt/v3/banfo.md'), 'utf-8');
 
     // 执行对话轮次
     for (let round = 1; round <= this.maxRounds; round++) {
@@ -111,17 +111,16 @@ export class ReasonerDialogService {
       const searchInstruction = rulerStructuredData.search_instruction;
       const referenceContent = rulerStructuredData.reference_content;
 
-      if (needSearch) {
+      // 创建一个可变的 creatorPrompt
+      let realCreatorPrompt = creatorPrompt;
+
+
+      // 默认情况下 第2轮 第4轮 需要联网搜索
+      if (round == 2 || round == 4) {
         // # 续写主题的联网搜索内容
-        const searchTemplate = `
-            # 续写主题的联网搜索内容
-            {$search_content}
-          `
-
-        const searchContent = searchTemplate.replace('{$search_content}', searchInstruction);
-        // todo 联网搜索
+        const searchResult = await this.getSearchResult(searchInstruction, referenceContent);
+        realCreatorPrompt = creatorPrompt + '\n\n' + searchResult;
       }
-
 
       // 如果已经是最后一轮，则结束对话
       if (round === this.maxRounds) break;
@@ -130,7 +129,7 @@ export class ReasonerDialogService {
       const creatorResponse = await this.executeCreatorTurn(
         theme,
         currentContent,
-        creatorPrompt,
+        realCreatorPrompt,
         rulerTextResponse,
         rulerStructuredData,
         round
@@ -151,14 +150,7 @@ export class ReasonerDialogService {
 
     // 结束循环后，如果 isEnd 为 no，则需要执行结束段落的创作
     if (isEnd === 'no') {
-      // 读取结束段落的提示词
-      const endWritePrompt = await this.loadPrompt(this.endWritePromptFile);
-      // 组装结束段落的输入
-      const endWriteInput = endWritePrompt.replace('{$current_text}', finalContent)
-        .replace('{$banfo}', banfo);
-      // 执行结束段落的创作
-      const endWriteResponse = await this.executeEndWriteTurn(
-        endWriteInput);
+      const endWriteResponse = await this.endWrite(finalContent);
       finalContent = finalContent + '\n\n' + endWriteResponse;
     }
 
@@ -212,6 +204,55 @@ export class ReasonerDialogService {
     });
   }
 
+  private async endWrite(currentContent: string): Promise<string> {
+
+    const banfo = await fs.readFile(path.join(process.cwd(), 'src/prompt/v3/banfo.md'), 'utf-8');
+    // 读取结束段落的提示词
+    const endWritePrompt = await this.loadPrompt(this.endWritePromptFile);
+    // 组装结束段落的输入
+    const endWriteInput = endWritePrompt.replace('{$current_text}', currentContent)
+      .replace('{$banfo}', banfo);
+    // 执行结束段落的创作
+    const endWriteResponse = await this.executeEndWriteTurn(endWriteInput);
+    return endWriteResponse;
+  }
+
+  private async getSearchResult(searchInstruction: string, referenceContent: string): Promise<string> {
+     // 执行搜索并提取内容
+     const result = await tavilySearchUtil.searchAndExtract(
+      searchInstruction,
+      {
+        searchDepth: 'advanced',
+        includeAnswer: true,
+        extractDepth: 'advanced',
+        includeImages: false
+      }
+    );
+
+    // 获取网页搜索的内容
+    const extractedContents = result.extractedContents;
+
+    // 提取实际内容集合
+    const contents = extractedContents.results.map((item) => item.raw_content);
+
+    // 将 contents 拼接成一个字符串
+    const webSearchContent = contents.join('\n\n');
+
+    // 对 webSearchContent 去掉网页 html等标签
+    const webSearchContentRep = webSearchContent.replace(/<[^>]*>?/g, '');
+
+    // 使用 WebContentExtractor 提取网页内容
+    const webContent = await webContentExtractor.extractContent(referenceContent, webSearchContentRep);
+
+    const searchTemplate = `
+    # 以下内容是基于用户发送的消息的网络搜索结果, 可以参考网络搜索内容辅助创作。:
+      {$search_results}
+    `
+    let searchResults = searchTemplate.replace('{$search_results}', webContent);
+   
+    return searchResults;
+  }
+
   /**
    * 执行 Ruler 模型回合 - 处理结构化数据
    */
@@ -224,7 +265,7 @@ export class ReasonerDialogService {
     // 记录轮次开始
     await this.logToModelFile('ruler', `\n--- 轮次 ${round}/${this.maxRounds} ---\n`);
     await this.logToModelFile('ruler', `输入:\n${currentContent}\n\n`);
-    
+
     // 根据ruler的模板组装ruler的输入
     const rulerInput = rulerPrompt
       .replace('{$current_text}', currentContent)
@@ -237,30 +278,32 @@ export class ReasonerDialogService {
       role: 'user',
       content: rulerInput
     });
-    
+
     // 调用 DeepSeek 模型
-    const response = await deepseekUtil.chat(messages);
-    
+    const response = await deepseekUtil.chat(messages, {
+      temperature: 1.3
+    });
+
     // 提取响应内容
     if (!response || !response.choices || !response.choices[0] || !response.choices[0].message) {
       const error = new Error('API 响应格式不正确');
       logger.error('API 响应格式不正确', { error, round });
       throw error;
     }
-    
+
     const responseContent = response.choices[0].message.content || '';
-    
+
     // 记录 Ruler 的回应
     await this.logToModelFile('ruler', `输出:\n${responseContent}\n\n`);
-    
+
     // 尝试解析 JSON 结构
     let structuredData: RulerResponse;
-    
+
     try {
       // 尝试从响应中提取 JSON
       const jsonRegex = /```(?:json)?([\s\S]*?)```/;
       const jsonMatch = responseContent.match(jsonRegex);
-      
+
       if (jsonMatch && jsonMatch[1]) {
         // 从代码块中提取 JSON
         structuredData = JSON.parse(jsonMatch[1].trim()) as RulerResponse;
@@ -269,13 +312,13 @@ export class ReasonerDialogService {
         structuredData = JSON.parse(responseContent) as RulerResponse;
       }
     } catch (error) {
-      logger.error('解析 Ruler 响应为 JSON 失败', { 
-        error, 
-        responsePreview: responseContent.substring(0, 100) + '...' 
+      logger.error('解析 Ruler 响应为 JSON 失败', {
+        error,
+        responsePreview: responseContent.substring(0, 100) + '...'
       });
       throw error; // 直接抛出错误，终止执行
     }
-    
+
     // 记录 Ruler 的结构化数据到历史
     await this.appendToHistoryFile({
       timestamp: new Date().toISOString(),
@@ -284,7 +327,7 @@ export class ReasonerDialogService {
       speaker: 'ruler',
       structuredData
     });
-    
+
     return {
       textResponse: responseContent,
       structuredData
@@ -305,35 +348,43 @@ export class ReasonerDialogService {
     // 记录轮次开始
     await this.logToModelFile('creator', `\n--- 轮次 ${round}/${this.maxRounds} ---\n`);
     await this.logToModelFile('creator', `输入:\n${rulerResponse}\n\n`);
-    
+
+    const banfo = await fs.readFile(path.join(process.cwd(), 'src/prompt/v3/banfo.md'), 'utf-8');
+
+    creatorPrompt.replace('{$next_instruction}', rulerStructuredData.next_instruction)
+      .replace('{$current_text}', currentContent)
+      .replace('{$banfo}', banfo);
+
     // 构建 Creator 的消息历史
     const messages: any[] = [];
-    
+
     // 添加系统消息
     messages.unshift({
       role: 'user',
       content: creatorPrompt
     });
-    
+
     try {
       // 调用 DeepSeek 模型
-      const response = await deepseekUtil.chat(messages);
-      
+      const response = await deepseekUtil.chat(messages, {
+        temperature: 1.5
+      });
+
       // 添加防御性检查，确保 response 和 choices 存在
       if (!response || !response.choices || response.choices.length === 0) {
         throw new Error('API 响应缺少 choices 数组');
       }
-      
+
       if (!response.choices[0] || !response.choices[0].message) {
         throw new Error('API 响应缺少 message 字段');
       }
-      
+
       // 提取响应内容
       const creatorResponse = response.choices[0].message.content || '';
-      
+
       // 记录 Creator 的回应
       await this.logToModelFile('creator', `输出:\n${creatorResponse}\n\n`);
-      
+
       // 记录 Creator 的回应到历史
       await this.appendToHistoryFile({
         timestamp: new Date().toISOString(),
@@ -341,15 +392,15 @@ export class ReasonerDialogService {
         content: creatorResponse,
         speaker: 'creator'
       });
-      
+
       return creatorResponse;
     } catch (error) {
-      logger.error('执行 Creator 回合失败', { 
+      logger.error('执行 Creator 回合失败', {
         error: error instanceof Error ? {
           message: error.message,
           stack: error.stack
         } : String(error),
-        round 
+        round
       });
       throw error;
     }

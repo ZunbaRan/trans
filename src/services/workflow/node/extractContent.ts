@@ -64,7 +64,9 @@ export class ExtractContentService {
     // 调用 DeepSeek R1 模型
     const response = await deepseekUtil.chat([
       { role: 'user', content: finalPrompt }
-    ]);
+    ], {
+      temperature: 1.0
+    });
 
     // 提取响应内容
     let responseContent = response.choices[0]?.message?.content || '';

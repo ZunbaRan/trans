@@ -19,7 +19,7 @@ interface ChatCompletionRequest {
   max_tokens?: number;
   frequency_penalty?: number;
   presence_penalty?: number;
-  n?: number;
+  temperature?: number;
   response_format?: {
     type: string;
   };
@@ -118,6 +118,7 @@ export class DeepSeekUtil {
       max_tokens?: number;
       frequency_penalty?: number;
       presence_penalty?: number;
+      temperature?: number;
     } = {}
   ): Promise<ChatCompletionResponse> {
     try {
@@ -132,7 +133,7 @@ export class DeepSeekUtil {
         messages,
         stream: false,
         max_tokens: options.max_tokens || 4096,
-        n: 1,
+        temperature: options.temperature || 0.7,
         response_format: {
           type: 'text'
         }
