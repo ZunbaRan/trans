@@ -4,6 +4,11 @@ import * as yaml from 'js-yaml';
 import path from 'path';
 import axios from 'axios';
 
+import { createModuleLogger } from './logger';
+
+const logger = createModuleLogger('TavilySearchUtil');
+
+
 interface TavilyConfig {
   apiKey: string;
 }
@@ -42,9 +47,9 @@ export class TavilySearchUtil {
       this.apiKey = config.apiKey;
       this.tavilyClient = tavily({ apiKey: this.apiKey });
       
-      console.log('Tavily 配置加载成功');
+      logger.info('Tavily 配置加载成功');
     } catch (error) {
-      console.error('加载 Tavily 配置失败:', error);
+      logger.error('加载 Tavily 配置失败:', error);
       throw new Error('无法加载 Tavily 配置');
     }
   }
@@ -76,7 +81,7 @@ export class TavilySearchUtil {
       
       return response;
     } catch (error) {
-      console.error('Tavily 搜索失败:', error);
+      logger.error('Tavily 搜索失败:', error);
       throw error;
     }
   }
@@ -173,7 +178,7 @@ export class TavilySearchUtil {
       }
 
       // 打印 urls 的数量
-      console.log('准备提取内容的 URL 数量:', urls.length);
+      logger.info('准备提取内容的 URL 数量:', urls.length);
       // 将单个URL转换为数组并创建一个副本
       const urlArray = Array.isArray(urls) ? [...urls] : [urls];
       let allResults: Array<{
@@ -218,7 +223,7 @@ export class TavilySearchUtil {
         totalResponseTime += response.data.response_time;
 
         // 记录本次批次的处理结果
-        console.log('批次处理结果:', {
+        logger.info('批次处理结果:', {
           requested: currentBatch.length,
           succeeded: response.data.results.length,
           failed: response.data.failed_results.length,
@@ -227,7 +232,7 @@ export class TavilySearchUtil {
         });
       }
 
-      console.log('提取内容完成:', {
+      logger.info('提取内容完成:', {
         totalResults: allResults.length,
         totalFailed: allFailedResults.length,
         totalResponseTime,
@@ -240,7 +245,7 @@ export class TavilySearchUtil {
         response_time: totalResponseTime
       };
     } catch (error) {
-      console.error('Tavily 内容提取失败:', error);
+      logger.error('Tavily 内容提取失败:', error);
       throw error;
     }
   }
@@ -293,7 +298,7 @@ export class TavilySearchUtil {
       // 获取所有 URL
       const urls = searchResponse.results.map(result => result.url);
       
-      console.log('准备提取内容的 URL:', urls);
+      logger.info('准备提取内容的 URL:', urls);
       
       // 提取内容
       const extractedContents = await this.extract(urls, {
@@ -306,7 +311,7 @@ export class TavilySearchUtil {
         extractedContents
       };
     } catch (error) {
-      console.error('搜索并提取内容失败:', error);
+      logger.error('搜索并提取内容失败:', error);
       throw error;
     }
   }

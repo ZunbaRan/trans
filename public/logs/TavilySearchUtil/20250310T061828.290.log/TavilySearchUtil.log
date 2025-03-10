@@ -1,0 +1,32 @@
+[2025-03-10 14:18:28] [INFO]: Tavily 配置加载成功
+{
+  "module": "TavilySearchUtil"
+}
+[2025-03-10 14:22:46] [INFO]: 准备提取内容的 URL:
+{
+  "0": "https://www.xueshu.com/haowen/80065.html",
+  "1": "https://www.bain.cn/pdfs/202306200419299352.pdf",
+  "2": "https://wfsahq.org/wp-content/uploads/Chinese_version_-_occupational_wellbeing.pdf",
+  "module": "TavilySearchUtil"
+}
+[2025-03-10 14:22:46] [INFO]: 准备提取内容的 URL 数量:
+{
+  "module": "TavilySearchUtil"
+}
+[2025-03-10 14:22:59] [INFO]: 批次处理结果:
+{
+  "module": "TavilySearchUtil",
+  "requested": 3,
+  "succeeded": 3,
+  "failed": 0,
+  "totalSucceeded": 3,
+  "remaining": 2
+}
+[2025-03-10 14:22:59] [INFO]: 提取内容完成:
+{
+  "module": "TavilySearchUtil",
+  "totalResults": 3,
+  "totalFailed": 0,
+  "totalResponseTime": 9.51,
+  "remainingUrls": 0
+}

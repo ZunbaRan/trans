@@ -218,7 +218,7 @@ export class OpenAIClientManager {
       const chat = model.startChat({
         history: geminiHistory.slice(0, -1), // exclude the last message
         generationConfig: {
-          maxOutputTokens: options.max_tokens || 1000,
+          maxOutputTokens: options.max_tokens || 4000,
           temperature: options.temperature || 0.7,
         }
       });

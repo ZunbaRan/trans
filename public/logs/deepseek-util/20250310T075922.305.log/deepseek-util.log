@@ -1,0 +1,28 @@
+[2025-03-10 15:59:22] [INFO]: 发送请求到 DeepSeek API
+{
+  "module": "deepseek-util",
+  "url": "https://api.deepseek.com/chat/completions",
+  "model": "deepseek-reasoner",
+  "messagesCount": 1
+}
+[2025-03-10 16:02:03] [INFO]: 发送请求到 DeepSeek API
+{
+  "module": "deepseek-util",
+  "url": "https://api.deepseek.com/chat/completions",
+  "model": "deepseek-reasoner",
+  "messagesCount": 1
+}
+[2025-03-10 16:05:21] [INFO]: 发送请求到 DeepSeek API
+{
+  "module": "deepseek-util",
+  "url": "https://api.deepseek.com/chat/completions",
+  "model": "deepseek-reasoner",
+  "messagesCount": 1
+}
+[2025-03-10 16:15:21] [ERROR]: 记录对话失败
+{
+  "module": "deepseek-util",
+  "error": {},
+  "messagesCount": 1,
+  "logDir": "/Users/loloru/vscodeProjects/transNode/trans/public/logs/deepseek"
+}

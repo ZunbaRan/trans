@@ -1,0 +1,35 @@
+[2025-03-10 12:40:14] [INFO]: 发送请求到 DeepSeek API
+{
+  "module": "deepseek-util",
+  "url": "https://api.deepseek.com/chat/completions",
+  "model": "deepseek-reasoner",
+  "messagesCount": 1
+}
+[2025-03-10 12:41:21] [INFO]: 发送请求到 DeepSeek API
+{
+  "module": "deepseek-util",
+  "url": "https://api.deepseek.com/chat/completions",
+  "model": "deepseek-reasoner",
+  "messagesCount": 1
+}
+[2025-03-10 12:42:19] [INFO]: 发送请求到 DeepSeek API
+{
+  "module": "deepseek-util",
+  "url": "https://api.deepseek.com/chat/completions",
+  "model": "deepseek-reasoner",
+  "messagesCount": 1
+}
+[2025-03-10 12:43:20] [INFO]: 发送请求到 DeepSeek API
+{
+  "module": "deepseek-util",
+  "url": "https://api.deepseek.com/chat/completions",
+  "model": "deepseek-reasoner",
+  "messagesCount": 1
+}
+[2025-03-10 12:44:18] [INFO]: 发送请求到 DeepSeek API
+{
+  "module": "deepseek-util",
+  "url": "https://api.deepseek.com/chat/completions",
+  "model": "deepseek-reasoner",
+  "messagesCount": 1
+}

@@ -59,11 +59,11 @@ export class WebContentExtractor {
         .replace('{$web_content}', webContent);
       
       // 调用 DeepSeek V3 模型
-      const response = await openAIClient.executeWithFallback(async (client, model) => {
+      const response = await openAIClient.executeWithModel("deepseekV3", async (client, model) => {
         return await openAIClient.chat([
           { role: 'user', content: finalPrompt }
         ], {
-          model: 'deepseek-v3',  // 指定使用 DeepSeek V3 模型
+          model: model,  // 指定使用 DeepSeek V3 模型
           temperature: 1.0
         });
       });

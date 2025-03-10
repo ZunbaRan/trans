@@ -118,7 +118,6 @@ export class DeepSeekUtil {
       max_tokens?: number;
       frequency_penalty?: number;
       presence_penalty?: number;
-      temperature?: number;
     } = {}
   ): Promise<ChatCompletionResponse> {
     try {
@@ -133,7 +132,6 @@ export class DeepSeekUtil {
         messages,
         stream: false,
         max_tokens: options.max_tokens || 4096,
-        temperature: options.temperature || 0.7,
         response_format: {
           type: 'text'
         }
@@ -156,18 +154,7 @@ export class DeepSeekUtil {
         }
       });
 
-      // 尝试记录对话，但不让日志错误影响主流程
-      try {
-        await this.logConversation(messages, response.data);
-      } catch (logError) {
-        // 只记录错误，但不抛出
-        logger.error('记录对话失败，但继续执行', {
-          error: logError instanceof Error ? {
-            message: logError.message,
-            stack: logError.stack
-          } : String(logError)
-        });
-      }
+      await this.logConversation(messages, response.data);
 
       return response.data;
     } catch (error) {

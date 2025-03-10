@@ -21,57 +21,57 @@ export class WorkflowService {
      * @returns 分析结果
      */
     public async analyzeContentFromFile(filePath: string): Promise<string> {
-        
-            console.info('开始从文件中提取和分析内容', { filePath });
 
-            // 确保文件路径是绝对路径
-            const absolutePath = path.isAbsolute(filePath)
-                ? filePath
-                : path.join(process.cwd(), filePath);
+        console.info('开始从文件中提取和分析内容', { filePath });
 
-            // 检查文件是否存在
-            try {
-                await fs.access(absolutePath);
-            } catch (error) {
-                logger.error('文件不存在', { filePath, absolutePath, error });
-                throw new Error(`文件不存在: ${filePath}`);
-            }
+        // 确保文件路径是绝对路径
+        const absolutePath = path.isAbsolute(filePath)
+            ? filePath
+            : path.join(process.cwd(), filePath);
 
-            // 读取文件内容
-            console.debug('读取文件内容', { absolutePath });
-            const content = await fs.readFile(absolutePath, 'utf-8');
+        // 检查文件是否存在
+        try {
+            await fs.access(absolutePath);
+        } catch (error) {
+            logger.error('文件不存在', { filePath, absolutePath, error });
+            throw new Error(`文件不存在: ${filePath}`);
+        }
 
-            if (!content || content.trim() === '') {
-                logger.warn('文件内容为空', { filePath });
-                throw new Error(`文件内容为空: ${filePath}`);
-            }
+        // 读取文件内容
+        console.debug('读取文件内容', { absolutePath });
+        const content = await fs.readFile(absolutePath, 'utf-8');
 
-            console.info('文件内容读取成功', {
-                filePath,
-                contentLength: content.length
-            });
+        if (!content || content.trim() === '') {
+            logger.warn('文件内容为空', { filePath });
+            throw new Error(`文件内容为空: ${filePath}`);
+        }
 
-            // 调用 extractAndAnalyze 方法进行分析
-            const results = await extractContentService.extractAndAnalyze(content.trim());
-            console.info('内容分析完成', {
-                filePath,
-                themesCount: results.length
-            });
+        console.info('文件内容读取成功', {
+            filePath,
+            contentLength: content.length
+        });
 
-            // 循环results
-            for (const result of results) {
-                // 文章的主题
-                const theme = result.theme
+        // 调用 extractAndAnalyze 方法进行分析
+        const results = await extractContentService.extractAndAnalyze(content.trim());
+        console.info('内容分析完成', {
+            filePath,
+            themesCount: results.length
+        });
 
-                // 调用 firstCreateService 方法进行创作
-                const firstParagraph = await firstCreateService.createFirstParagraph(result);
+        // 循环results
+        for (const result of results) {
+            // 文章的主题
+            const theme = result.theme
 
-                // 调用 reasonerDialogService 方法进行对话
-                const dialogHistory = await reasonerDialogService.executeDialog(theme, firstParagraph);
-            }
+            // 调用 firstCreateService 方法进行创作
+            const firstParagraph = await firstCreateService.createFirstParagraph(result);
 
-            return 'success';
-       
+            // 调用 reasonerDialogService 方法进行对话
+            const dialogHistory = await reasonerDialogService.executeDialog(theme, firstParagraph);
+        }
+
+        return 'success';
+
     }
 
     /**
@@ -118,25 +118,12 @@ export class WorkflowService {
      * @returns 格式化后的分析结果
      */
     public async executeWorkflow(filePath: string): Promise<string> {
-        try {
-            logger.info('开始执行工作流', { filePath });
+        logger.info('开始执行工作流', { filePath });
 
-            // 从文件中提取和分析内容
-            const analysisResults = await this.analyzeContentFromFile(filePath);
+        // 从文件中提取和分析内容
+        const analysisResults = await this.analyzeContentFromFile(filePath);
 
-            return analysisResults;
-        } catch (error) {
-            // 增强错误日志记录
-            logger.error('执行工作流失败', { 
-                error: error instanceof Error ? {
-                    message: error.message,
-                    stack: error.stack,
-                    name: error.name
-                } : String(error), 
-                filePath 
-            });
-            throw error;
-        }
+        return analysisResults;
     }
 }
 

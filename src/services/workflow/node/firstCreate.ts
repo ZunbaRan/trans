@@ -85,9 +85,7 @@ export class FirstCreateService {
       // 调用 DeepSeek 模型
       const response = await deepseekUtil.chat([
         { role: 'user', content: finalPrompt }
-      ], {
-        temperature: 1.5
-      });
+      ]);
       
       // 提取响应内容
       const generatedContent = response.choices[0]?.message?.content || '';

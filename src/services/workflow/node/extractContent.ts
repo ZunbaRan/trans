@@ -2,6 +2,7 @@ import * as fs from 'fs/promises';
 import path from 'path';
 import { deepseekUtil } from '../../utils/deepseekUtil';
 import { createModuleLogger } from '../../utils/logger';
+import { openAIClient } from '@/services/utils/openaiClient';
 
 // 创建模块特定的日志记录器
 const logger = createModuleLogger('extract-content');
@@ -64,9 +65,7 @@ export class ExtractContentService {
     // 调用 DeepSeek R1 模型
     const response = await deepseekUtil.chat([
       { role: 'user', content: finalPrompt }
-    ], {
-      temperature: 1.0
-    });
+    ]);
 
     // 提取响应内容
     let responseContent = response.choices[0]?.message?.content || '';
@@ -79,16 +78,28 @@ export class ExtractContentService {
     // 如果存在 ```json，或者存在 ```，则提取 ```json 和 ``` 之间的内容，或者 ``` 和 ``` 之间的内容
     const jsonMatch = responseContent.replace('```json', '').replace('```', '');
 
-
-    logger.warn('未找到 JSON 代码块，尝试直接解析响应');
-
-    const results = JSON.parse(jsonMatch) as AnalysisResult[];
-    logger.info('内容分析完成（直接解析）', {
-      themesCount: results.length
-    });
+    let results: AnalysisResult[] = [];
+    try {
+      results = JSON.parse(jsonMatch);
+    } catch (error) {
+      // 调用 DeepSeek v3 进行数据校对
+      const response = await openAIClient.executeWithFallback(async (client, model) => {
+        const result = await openAIClient.chat([
+          { role: 'user', content: `
+            当前内容在程序中检测不符合 json 格式, 请你帮忙处理为正确的 json 格式并返回，
+            只返回调整好的 json 文本即可，不要加入其他的说明和标识.
+            当前内容为：
+            ` + jsonMatch
+          }
+        ], {
+          model: 'deepseekV3',  // 指定使用 DeepSeek V3 模型
+          temperature: 1.0
+        });
+        return result.choices[0]?.message?.content || '';
+      });
+      results = JSON.parse(response) as AnalysisResult[];
+    }
     return results;
-
-
   }
 
 }

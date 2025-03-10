@@ -1,0 +1,7 @@
+[2025-03-10 13:51:31] [INFO]: 发送请求到 DeepSeek API
+{
+  "module": "deepseek-util",
+  "url": "https://api.deepseek.com/chat/completions",
+  "model": "deepseek-reasoner",
+  "messagesCount": 1
+}

@@ -44,8 +44,8 @@ export class ReasonerDialogService {
   private readonly rulerPromptFile: string = '04_predictArticle.md';
   private readonly creatorPromptFile: string = '05_articleCreate.md';
   private readonly endWritePromptFile: string = '06_endWrite.md';
-  private readonly maxRounds: number = 6;
-  private readonly maxHistoryRounds: number = 6; // 最多保留的历史对话轮次
+  private readonly maxRounds: number = 5;
+  private readonly maxHistoryRounds: number = 5; // 最多保留的历史对话轮次
   private currentSessionDir: string = '';
   private currentHistoryFile: string = '';
   private currentRulerLogFile: string = '';
@@ -119,7 +119,11 @@ export class ReasonerDialogService {
       if (round == 2 || round == 4) {
         // # 续写主题的联网搜索内容
         const searchResult = await this.getSearchResult(searchInstruction, referenceContent);
-        realCreatorPrompt = creatorPrompt + '\n\n' + searchResult;
+        if (searchResult == '') {
+          realCreatorPrompt = creatorPrompt;
+        } else {
+          realCreatorPrompt = creatorPrompt + '\n\n' + searchResult;
+        }
       }
 
       // 如果已经是最后一轮，则结束对话
@@ -218,39 +222,44 @@ export class ReasonerDialogService {
   }
 
   private async getSearchResult(searchInstruction: string, referenceContent: string): Promise<string> {
-     // 执行搜索并提取内容
-     const result = await tavilySearchUtil.searchAndExtract(
-      searchInstruction,
-      {
-        searchDepth: 'advanced',
-        includeAnswer: true,
-        extractDepth: 'advanced',
-        includeImages: false
-      }
-    );
+    try {
+      // 执行搜索并提取内容
+      const result = await tavilySearchUtil.searchAndExtract(
+        searchInstruction,
+        {
+          searchDepth: 'basic',
+          includeAnswer: true,
+          extractDepth: 'basic',
+          includeImages: false
+        }
+      );
 
-    // 获取网页搜索的内容
-    const extractedContents = result.extractedContents;
+      // 获取网页搜索的内容
+      const extractedContents = result.extractedContents;
 
-    // 提取实际内容集合
-    const contents = extractedContents.results.map((item) => item.raw_content);
+      // 提取实际内容集合
+      const contents = extractedContents.results.map((item) => item.raw_content);
 
-    // 将 contents 拼接成一个字符串
-    const webSearchContent = contents.join('\n\n');
+      // 将 contents 拼接成一个字符串
+      const webSearchContent = contents.join('\n\n');
 
-    // 对 webSearchContent 去掉网页 html等标签
-    const webSearchContentRep = webSearchContent.replace(/<[^>]*>?/g, '');
+      // 对 webSearchContent 去掉网页 html等标签
+      const webSearchContentRep = webSearchContent.replace(/<[^>]*>?/g, '');
 
-    // 使用 WebContentExtractor 提取网页内容
-    const webContent = await webContentExtractor.extractContent(referenceContent, webSearchContentRep);
+      // 使用 WebContentExtractor 提取网页内容
+      const webContent = await webContentExtractor.extractContent(referenceContent, webSearchContentRep);
 
-    const searchTemplate = `
+      const searchTemplate = `
     # 以下内容是基于用户发送的消息的网络搜索结果, 可以参考网络搜索内容辅助创作。:
       {$search_results}
     `
-    let searchResults = searchTemplate.replace('{$search_results}', webContent);
-   
-    return searchResults;
+      let searchResults = searchTemplate.replace('{$search_results}', webContent);
+
+      return searchResults;
+    } catch (error) {
+      logger.error('获取搜索结果失败', { error });
+      return '';
+    }
   }
 
   /**
@@ -280,9 +289,7 @@ export class ReasonerDialogService {
     });
 
     // 调用 DeepSeek 模型
-    const response = await deepseekUtil.chat(messages, {
-      temperature: 1.3
-    });
+    const response = await deepseekUtil.chat(messages);
 
     // 提取响应内容
     if (!response || !response.choices || !response.choices[0] || !response.choices[0].message) {
@@ -366,9 +373,7 @@ export class ReasonerDialogService {
 
     try {
       // 调用 DeepSeek 模型
-      const response = await deepseekUtil.chat(messages, {
-        temperature: 1.5
-      });
+      const response = await deepseekUtil.chat(messages);
 
       // 添加防御性检查，确保 response 和 choices 存在
       if (!response || !response.choices || response.choices.length === 0) {
