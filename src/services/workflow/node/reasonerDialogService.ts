@@ -242,13 +242,19 @@ export class ReasonerDialogService {
 
       let finalWebJsonl = '';
       // 循环contents
-      for(let i = 0; i < contents.length; i++) {
+      for (let i = 0; i < contents.length; i++) {
         const content = contents[i];
         // 对 content 去掉网页 html等标签
-        const contentRep = content.replace(/<[^>]*>?/g, '');
+        let contentRep = content.replace(/<[^>]*>?/g, '');
+
+        // 如果 contentRep 太长超过 6000 字符，则截取前6000字符
+        if (contentRep.length > 6000) {
+          contentRep = contentRep.substring(0, 6000);
+        }
+
         // 使用 WebContentExtractor 提取网页内容
         const webContent = await webContentExtractor.extractContent(referenceContent, contentRep);
-        finalWebJsonl  += webContent + '\n';
+        finalWebJsonl += webContent + '\n';
       }
 
       const searchTemplate = `
@@ -321,11 +327,37 @@ export class ReasonerDialogService {
         structuredData = JSON.parse(responseContent) as RulerResponse;
       }
     } catch (error) {
-      logger.error('解析 Ruler 响应为 JSON 失败', {
-        error,
-        responsePreview: responseContent.substring(0, 100) + '...'
-      });
-      throw error; // 直接抛出错误，终止执行
+
+      try {
+        // 如果 json 解析失败尝试直接从字符串中提取相应的字段， 然后设置到对象里返回
+        // 提取 is_complete 的值
+        const isComplete = responseContent.match(/is_complete: (yes|no)/)?.[1];
+        // 提取 next_instruction 的值
+        const nextInstruction = responseContent.match(/next_instruction: (.*)/)?.[1];
+        // 提取 search_instruction 的值
+        const searchInstruction = responseContent.match(/search_instruction: (.*)/)?.[1];
+        // 提取 reference_content 的值
+        const referenceContent = responseContent.match(/reference_content: (.*)/)?.[1];
+
+        // 如果提取的值不存在 则默认为空字符串
+        structuredData = {
+          is_complete: isComplete as 'yes' | 'no' || 'no',
+          next_instruction: nextInstruction || '',
+          search_instruction: searchInstruction || '',
+          reference_content: referenceContent || ''
+        };
+
+        return {
+          textResponse: responseContent,
+          structuredData
+        };
+      } catch (error) {
+        logger.error('解析 Ruler 响应为 JSON 失败', {
+          error,
+          responsePreview: responseContent.substring(0, 100) + '...'
+        });
+        throw error; // 直接抛出错误，终止执行
+      }
     }
 
     // 记录 Ruler 的结构化数据到历史

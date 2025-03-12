@@ -21,35 +21,13 @@ export class WorkflowService {
      * @returns 分析结果
      */
     public async analyzeContentFromFile(filePath: string): Promise<string> {
-
         console.info('开始从文件中提取和分析内容', { filePath });
 
-        // 确保文件路径是绝对路径
-        const absolutePath = path.isAbsolute(filePath)
-            ? filePath
-            : path.join(process.cwd(), filePath);
-
         // 检查文件是否存在
-        try {
-            await fs.access(absolutePath);
-        } catch (error) {
-            logger.error('文件不存在', { filePath, absolutePath, error });
-            throw new Error(`文件不存在: ${filePath}`);
-        }
-
+        const absolutePath = await this.checkFileExists(filePath);
+    
         // 读取文件内容
-        console.debug('读取文件内容', { absolutePath });
-        const content = await fs.readFile(absolutePath, 'utf-8');
-
-        if (!content || content.trim() === '') {
-            logger.warn('文件内容为空', { filePath });
-            throw new Error(`文件内容为空: ${filePath}`);
-        }
-
-        console.info('文件内容读取成功', {
-            filePath,
-            contentLength: content.length
-        });
+        const content = await this.readFile(absolutePath);
 
         // 调用 extractAndAnalyze 方法进行分析
         const results = await extractContentService.extractAndAnalyze(content.trim());
@@ -73,6 +51,34 @@ export class WorkflowService {
         return 'success';
 
     }
+
+    public async checkFileExists(filePath: string): Promise<string> {
+        // 确保文件路径是绝对路径
+        const absolutePath = path.isAbsolute(filePath)
+            ? filePath
+            : path.join(process.cwd(), filePath);
+        // 检查文件是否存在
+        try {
+            await fs.access(absolutePath);
+        } catch (error) {
+            logger.error('文件不存在', { filePath, absolutePath, error });
+            throw new Error(`文件不存在: ${filePath}`);
+        }
+        return absolutePath;
+    }
+
+    public async readFile(absolutePath: string): Promise<string> {
+          // 读取文件内容
+          console.debug('读取文件内容', { absolutePath });
+          const content = await fs.readFile(absolutePath, 'utf-8');
+  
+          if (!content || content.trim() === '') {
+              logger.warn('文件内容为空', { absolutePath });
+              throw new Error(`文件内容为空: ${absolutePath}`);
+          }
+          return content;
+    }
+
 
     /**
      * 验证分析结果格式
