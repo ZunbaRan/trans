@@ -1,0 +1,386 @@
+[2025-03-13 00:48:44] [INFO]: 开始批量审查文章段落
+{
+  "module": "review-article",
+  "paragraphsCount": 25
+}
+[2025-03-13 00:48:44] [INFO]: 审查段落 1/25
+{
+  "module": "review-article"
+}
+[2025-03-13 00:48:44] [INFO]: 开始审查段落
+{
+  "module": "review-article",
+  "paragraphLength": 474
+}
+[2025-03-13 00:49:49] [INFO]: 段落审查完成
+{
+  "module": "review-article",
+  "paragraphLength": 474,
+  "resultLength": 821
+}
+[2025-03-13 00:49:49] [INFO]: 审查段落 2/25
+{
+  "module": "review-article"
+}
+[2025-03-13 00:49:49] [INFO]: 开始审查段落
+{
+  "module": "review-article",
+  "paragraphLength": 780
+}
+[2025-03-13 00:51:00] [INFO]: 段落审查完成
+{
+  "module": "review-article",
+  "paragraphLength": 780,
+  "resultLength": 1141
+}
+[2025-03-13 00:51:00] [INFO]: 审查段落 3/25
+{
+  "module": "review-article"
+}
+[2025-03-13 00:51:00] [INFO]: 开始审查段落
+{
+  "module": "review-article",
+  "paragraphLength": 950
+}
+[2025-03-13 00:52:09] [INFO]: 段落审查完成
+{
+  "module": "review-article",
+  "paragraphLength": 950,
+  "resultLength": 1032
+}
+[2025-03-13 00:52:09] [INFO]: 审查段落 4/25
+{
+  "module": "review-article"
+}
+[2025-03-13 00:52:09] [INFO]: 开始审查段落
+{
+  "module": "review-article",
+  "paragraphLength": 1249
+}
+[2025-03-13 00:53:17] [INFO]: 段落审查完成
+{
+  "module": "review-article",
+  "paragraphLength": 1249,
+  "resultLength": 1100
+}
+[2025-03-13 00:53:17] [INFO]: 审查段落 5/25
+{
+  "module": "review-article"
+}
+[2025-03-13 00:53:17] [INFO]: 开始审查段落
+{
+  "module": "review-article",
+  "paragraphLength": 761
+}
+[2025-03-13 00:54:25] [INFO]: 段落审查完成
+{
+  "module": "review-article",
+  "paragraphLength": 761,
+  "resultLength": 1047
+}
+[2025-03-13 00:54:25] [INFO]: 审查段落 6/25
+{
+  "module": "review-article"
+}
+[2025-03-13 00:54:25] [INFO]: 开始审查段落
+{
+  "module": "review-article",
+  "paragraphLength": 550
+}
+[2025-03-13 00:55:21] [INFO]: 段落审查完成
+{
+  "module": "review-article",
+  "paragraphLength": 550,
+  "resultLength": 796
+}
+[2025-03-13 00:55:21] [INFO]: 审查段落 7/25
+{
+  "module": "review-article"
+}
+[2025-03-13 00:55:21] [INFO]: 开始审查段落
+{
+  "module": "review-article",
+  "paragraphLength": 835
+}
+[2025-03-13 00:56:22] [INFO]: 段落审查完成
+{
+  "module": "review-article",
+  "paragraphLength": 835,
+  "resultLength": 965
+}
+[2025-03-13 00:56:22] [INFO]: 审查段落 8/25
+{
+  "module": "review-article"
+}
+[2025-03-13 00:56:22] [INFO]: 开始审查段落
+{
+  "module": "review-article",
+  "paragraphLength": 841
+}
+[2025-03-13 00:57:20] [INFO]: 段落审查完成
+{
+  "module": "review-article",
+  "paragraphLength": 841,
+  "resultLength": 1060
+}
+[2025-03-13 00:57:20] [INFO]: 审查段落 9/25
+{
+  "module": "review-article"
+}
+[2025-03-13 00:57:20] [INFO]: 开始审查段落
+{
+  "module": "review-article",
+  "paragraphLength": 636
+}
+[2025-03-13 00:58:23] [INFO]: 段落审查完成
+{
+  "module": "review-article",
+  "paragraphLength": 636,
+  "resultLength": 1250
+}
+[2025-03-13 00:58:23] [INFO]: 审查段落 10/25
+{
+  "module": "review-article"
+}
+[2025-03-13 00:58:23] [INFO]: 开始审查段落
+{
+  "module": "review-article",
+  "paragraphLength": 747
+}
+[2025-03-13 00:59:20] [INFO]: 段落审查完成
+{
+  "module": "review-article",
+  "paragraphLength": 747,
+  "resultLength": 977
+}
+[2025-03-13 00:59:20] [INFO]: 审查段落 11/25
+{
+  "module": "review-article"
+}
+[2025-03-13 00:59:20] [INFO]: 开始审查段落
+{
+  "module": "review-article",
+  "paragraphLength": 592
+}
+[2025-03-13 01:00:15] [INFO]: 段落审查完成
+{
+  "module": "review-article",
+  "paragraphLength": 592,
+  "resultLength": 812
+}
+[2025-03-13 01:00:15] [INFO]: 审查段落 12/25
+{
+  "module": "review-article"
+}
+[2025-03-13 01:00:15] [INFO]: 开始审查段落
+{
+  "module": "review-article",
+  "paragraphLength": 841
+}
+[2025-03-13 01:01:15] [INFO]: 段落审查完成
+{
+  "module": "review-article",
+  "paragraphLength": 841,
+  "resultLength": 896
+}
+[2025-03-13 01:01:15] [INFO]: 审查段落 13/25
+{
+  "module": "review-article"
+}
+[2025-03-13 01:01:15] [INFO]: 开始审查段落
+{
+  "module": "review-article",
+  "paragraphLength": 810
+}
+[2025-03-13 01:02:16] [INFO]: 段落审查完成
+{
+  "module": "review-article",
+  "paragraphLength": 810,
+  "resultLength": 878
+}
+[2025-03-13 01:02:16] [INFO]: 审查段落 14/25
+{
+  "module": "review-article"
+}
+[2025-03-13 01:02:16] [INFO]: 开始审查段落
+{
+  "module": "review-article",
+  "paragraphLength": 583
+}
+[2025-03-13 01:03:10] [INFO]: 段落审查完成
+{
+  "module": "review-article",
+  "paragraphLength": 583,
+  "resultLength": 866
+}
+[2025-03-13 01:03:10] [INFO]: 审查段落 15/25
+{
+  "module": "review-article"
+}
+[2025-03-13 01:03:10] [INFO]: 开始审查段落
+{
+  "module": "review-article",
+  "paragraphLength": 769
+}
+[2025-03-13 01:04:17] [INFO]: 段落审查完成
+{
+  "module": "review-article",
+  "paragraphLength": 769,
+  "resultLength": 1024
+}
+[2025-03-13 01:04:17] [INFO]: 审查段落 16/25
+{
+  "module": "review-article"
+}
+[2025-03-13 01:04:17] [INFO]: 开始审查段落
+{
+  "module": "review-article",
+  "paragraphLength": 410
+}
+[2025-03-13 01:05:14] [INFO]: 段落审查完成
+{
+  "module": "review-article",
+  "paragraphLength": 410,
+  "resultLength": 867
+}
+[2025-03-13 01:05:14] [INFO]: 审查段落 17/25
+{
+  "module": "review-article"
+}
+[2025-03-13 01:05:14] [INFO]: 开始审查段落
+{
+  "module": "review-article",
+  "paragraphLength": 719
+}
+[2025-03-13 01:06:22] [INFO]: 段落审查完成
+{
+  "module": "review-article",
+  "paragraphLength": 719,
+  "resultLength": 1067
+}
+[2025-03-13 01:06:22] [INFO]: 审查段落 18/25
+{
+  "module": "review-article"
+}
+[2025-03-13 01:06:22] [INFO]: 开始审查段落
+{
+  "module": "review-article",
+  "paragraphLength": 735
+}
+[2025-03-13 01:07:24] [INFO]: 段落审查完成
+{
+  "module": "review-article",
+  "paragraphLength": 735,
+  "resultLength": 933
+}
+[2025-03-13 01:07:24] [INFO]: 审查段落 19/25
+{
+  "module": "review-article"
+}
+[2025-03-13 01:07:24] [INFO]: 开始审查段落
+{
+  "module": "review-article",
+  "paragraphLength": 1213
+}
+[2025-03-13 01:08:21] [INFO]: 段落审查完成
+{
+  "module": "review-article",
+  "paragraphLength": 1213,
+  "resultLength": 1039
+}
+[2025-03-13 01:08:21] [INFO]: 审查段落 20/25
+{
+  "module": "review-article"
+}
+[2025-03-13 01:08:21] [INFO]: 开始审查段落
+{
+  "module": "review-article",
+  "paragraphLength": 1170
+}
+[2025-03-13 01:09:30] [INFO]: 段落审查完成
+{
+  "module": "review-article",
+  "paragraphLength": 1170,
+  "resultLength": 1083
+}
+[2025-03-13 01:09:30] [INFO]: 审查段落 21/25
+{
+  "module": "review-article"
+}
+[2025-03-13 01:09:30] [INFO]: 开始审查段落
+{
+  "module": "review-article",
+  "paragraphLength": 552
+}
+[2025-03-13 01:10:13] [INFO]: 段落审查完成
+{
+  "module": "review-article",
+  "paragraphLength": 552,
+  "resultLength": 837
+}
+[2025-03-13 01:10:13] [INFO]: 审查段落 22/25
+{
+  "module": "review-article"
+}
+[2025-03-13 01:10:13] [INFO]: 开始审查段落
+{
+  "module": "review-article",
+  "paragraphLength": 686
+}
+[2025-03-13 01:10:56] [INFO]: 段落审查完成
+{
+  "module": "review-article",
+  "paragraphLength": 686,
+  "resultLength": 761
+}
+[2025-03-13 01:10:56] [INFO]: 审查段落 23/25
+{
+  "module": "review-article"
+}
+[2025-03-13 01:10:56] [INFO]: 开始审查段落
+{
+  "module": "review-article",
+  "paragraphLength": 1025
+}
+[2025-03-13 01:11:52] [INFO]: 段落审查完成
+{
+  "module": "review-article",
+  "paragraphLength": 1025,
+  "resultLength": 720
+}
+[2025-03-13 01:11:52] [INFO]: 审查段落 24/25
+{
+  "module": "review-article"
+}
+[2025-03-13 01:11:52] [INFO]: 开始审查段落
+{
+  "module": "review-article",
+  "paragraphLength": 629
+}
+[2025-03-13 01:12:36] [INFO]: 段落审查完成
+{
+  "module": "review-article",
+  "paragraphLength": 629,
+  "resultLength": 857
+}
+[2025-03-13 01:12:36] [INFO]: 审查段落 25/25
+{
+  "module": "review-article"
+}
+[2025-03-13 01:12:36] [INFO]: 开始审查段落
+{
+  "module": "review-article",
+  "paragraphLength": 982
+}
+[2025-03-13 01:13:48] [INFO]: 段落审查完成
+{
+  "module": "review-article",
+  "paragraphLength": 982,
+  "resultLength": 1072
+}
+[2025-03-13 01:13:48] [INFO]: 所有段落审查完成
+{
+  "module": "review-article",
+  "paragraphsCount": 25,
+  "resultsCount": 25
+}

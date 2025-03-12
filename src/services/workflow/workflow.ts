@@ -4,6 +4,7 @@ import { extractContentService } from './node/extractContent';
 import { firstCreateService } from './node/firstCreate';
 import { createModuleLogger } from '../utils/logger';
 import { reasonerDialogService } from './node/reasonerDialogService';
+import { reviewArticleService } from './node/reviewArticle';
 
 // 创建模块特定的日志记录器
 const logger = createModuleLogger('workflow');
@@ -25,7 +26,7 @@ export class WorkflowService {
 
         // 检查文件是否存在
         const absolutePath = await this.checkFileExists(filePath);
-    
+
         // 读取文件内容
         const content = await this.readFile(absolutePath);
 
@@ -36,6 +37,8 @@ export class WorkflowService {
             themesCount: results.length
         });
 
+        let articleParagraphs: string[] = [];
+
         // 循环results
         for (const result of results) {
             // 文章的主题
@@ -43,13 +46,70 @@ export class WorkflowService {
 
             // 调用 firstCreateService 方法进行创作
             const firstParagraph = await firstCreateService.createFirstParagraph(result);
+            // 把 firstParagraph 添加到 articleParagraphs 中
+            articleParagraphs.push(firstParagraph);
 
             // 调用 reasonerDialogService 方法进行对话
-            const dialogHistory = await reasonerDialogService.executeDialog(theme, firstParagraph);
+            const dialgArticleParagraphs = await reasonerDialogService.executeDialog(theme, firstParagraph);
+            // 把后续创作的内容添加到 articleParagraphs 中
+            articleParagraphs.push(...dialgArticleParagraphs);
         }
 
-        return 'success';
+        // 进行文章审查
+        await this.reviewArticleParagraphs(articleParagraphs);
 
+    }
+
+
+    private async reviewArticleParagraphs(articleParagraphs: string[]) {
+        // 调用 reviewArticleService 方法对 articleParagraphs 进行文章审查
+        try {
+            logger.info('开始对文章段落进行审查', { paragraphsCount: articleParagraphs.length });
+
+            // 审查文章段落并获取审查结果
+            const reviewResults = await reviewArticleService.reviewArticleParagraphs(articleParagraphs);
+
+            // 将原始段落和审查结果保存到文件
+            const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+            const outputFile = path.join(process.cwd(), 'public/output', `article-with-reviews-${timestamp}.md`);
+
+            // 确保输出目录存在
+            await fs.mkdir(path.join(process.cwd(), 'public/output'), { recursive: true });
+
+            // 准备输出内容
+            let outputContent = '# 文章与审查结果\n\n';
+
+            for (let i = 0; i < articleParagraphs.length; i++) {
+                outputContent += `## 段落 ${i + 1}\n\n`;
+                outputContent += `### 原始内容\n\n${articleParagraphs[i]}\n\n`;
+                outputContent += `### 审查结果\n\n${reviewResults[i]}\n\n`;
+                outputContent += '---\n\n';
+            }
+
+            // 写入文件
+            await fs.writeFile(outputFile, outputContent, 'utf-8');
+
+            logger.info('文章段落审查完成并保存', {
+                outputFile,
+                paragraphsCount: articleParagraphs.length
+            });
+
+            return `文章生成并审查完成，已保存到: ${outputFile}`;
+        } catch (error) {
+            logger.error('文章审查过程中出错', { error });
+
+            // 即使审查失败，也保存原始文章
+            const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+            const outputFile = path.join(process.cwd(), 'public/output', `article-original-${timestamp}.md`);
+
+            // 确保输出目录存在
+            await fs.mkdir(path.join(process.cwd(), 'public/output'), { recursive: true });
+
+            // 写入文件
+            await fs.writeFile(outputFile, articleParagraphs.join('\n\n'), 'utf-8');
+
+            return `文章生成完成，但审查过程中出错。原始文章已保存到: ${outputFile}`;
+        }
     }
 
     public async checkFileExists(filePath: string): Promise<string> {
@@ -68,15 +128,15 @@ export class WorkflowService {
     }
 
     public async readFile(absolutePath: string): Promise<string> {
-          // 读取文件内容
-          console.debug('读取文件内容', { absolutePath });
-          const content = await fs.readFile(absolutePath, 'utf-8');
-  
-          if (!content || content.trim() === '') {
-              logger.warn('文件内容为空', { absolutePath });
-              throw new Error(`文件内容为空: ${absolutePath}`);
-          }
-          return content;
+        // 读取文件内容
+        console.debug('读取文件内容', { absolutePath });
+        const content = await fs.readFile(absolutePath, 'utf-8');
+
+        if (!content || content.trim() === '') {
+            logger.warn('文件内容为空', { absolutePath });
+            throw new Error(`文件内容为空: ${absolutePath}`);
+        }
+        return content;
     }
 
 

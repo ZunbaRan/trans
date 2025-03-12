@@ -2,6 +2,7 @@ import * as fs from 'fs/promises';
 import path from 'path';
 import { deepseekUtil } from '../../utils/deepseekUtil';
 import { createModuleLogger } from '../../utils/logger';
+import { getRandomBanfo } from '../../utils/banfoSelector';
 
 // 创建模块特定的日志记录器
 const logger = createModuleLogger('first-create');
@@ -54,52 +55,51 @@ export class FirstCreateService {
    * @returns 生成的文章开头段落
    */
   public async createFirstParagraph(originContent: AnalysisResult): Promise<string> {
-      logger.info('开始创建文章开头段落', { 
-        theme: originContent.theme,
-        sectionsCount: originContent.sections.length 
-      });
-      
-      // 加载首次创作提示词
-      const firstWritePrompt = await this.loadFirstWritePrompt();
-      
-      // 读取半佛仙人文风参考
-      const banfo = await fs.readFile(path.join(process.cwd(), 'src/prompt/v3/banfo.md'), 'utf-8');
+    logger.info('开始创建文章开头段落', { 
+      theme: originContent.theme,
+      sectionsCount: originContent.sections.length 
+    });
+    
+    // 读取提示词模板
+    const promptTemplate = await this.loadFirstWritePrompt();
+    
+    // 读取半佛仙人文风参考 - 随机选择一个 banfo 文件
+    const banfo = await getRandomBanfo();
 
-      // originContent 转 json 字符串, 如果存在为空的属性，则删除该属性
-      const originContentJson = JSON.stringify(originContent, (key, value) => {
-        if (value === null || value === undefined) {
-          return undefined;
-        }
-        return value;
-      }, 2);
+    // originContent 转 json 字符串, 如果存在为空的属性，则删除该属性
+    const originContentJson = JSON.stringify(originContent, (key, value) => {
+      if (value === null || value === undefined) {
+        return undefined;
+      }
+      return value;
+    }, 2);
 
-      // 替换提示词中的占位符
-      const finalPrompt = firstWritePrompt
-        .replace('{$theme}', originContent.theme)
-        .replace('{$orign_content}', originContentJson)
-        .replace('{$banfo}', banfo);
-      
-      // 日志记录 finalPrompt
-      // logger.debug('创建了最终提示词', { promptLength: finalPrompt.length, finalPrompt: finalPrompt });
-      
-      // 调用 DeepSeek 模型
-      const response = await deepseekUtil.chat([
-        { role: 'user', content: finalPrompt }
-      ]);
-      
-      // 提取响应内容
-      const generatedContent = response.choices[0]?.message?.content || '';
-      
-      // 记录生成结果
+    // 替换提示词中的占位符
+    const finalPrompt = promptTemplate
+      .replace('{$theme}', originContent.theme)
+      .replace('{$orign_content}', originContentJson)
+      .replace('{$banfo}', banfo);
+    
+    // 日志记录 finalPrompt
+    // logger.debug('创建了最终提示词', { promptLength: finalPrompt.length, finalPrompt: finalPrompt });
+    
+    // 调用 DeepSeek 模型
+    const response = await deepseekUtil.chat([
+      { role: 'user', content: finalPrompt }
+    ]);
+    
+    // 提取响应内容
+    const generatedContent = response.choices[0]?.message?.content || '';
+    
+    // 记录生成结果
     //   await this.logGenerationResult(originContent.theme, generatedContent);
-      
-      logger.info('文章开头段落创建完成', { 
-        theme: originContent.theme,
-        contentLength: generatedContent.length 
-      });
-      
-      return generatedContent;
- 
+    
+    logger.info('文章开头段落创建完成', { 
+      theme: originContent.theme,
+      contentLength: generatedContent.length 
+    });
+    
+    return generatedContent;
   }
 
   /**

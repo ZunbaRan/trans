@@ -5,6 +5,7 @@ import { deepseekUtil } from '../../utils/deepseekUtil';
 import { createModuleLogger } from '../../utils/logger';
 import { tavilySearchUtil } from '../../utils/TavilySearchUtil';
 import { webContentExtractor } from './webContentExtractor';
+import { getRandomBanfo } from '../../utils/banfoSelector';
 
 // 创建模块特定的日志记录器
 const logger = createModuleLogger('reasoner-dialog');
@@ -60,12 +61,13 @@ export class ReasonerDialogService {
    * @param initialTopic 初始话题
    * @returns 对话历史记录
    */
-  public async executeDialog(theme: string, initialTopic: string): Promise<string> {
+  public async executeDialog(theme: string, initialTopic: string): Promise<string[]> {
     logger.info('开始执行 Reasoner 模型对话', { initialTopic });
 
     // 创建对话历史记录
     const dialogHistory: DialogStep[] = [];
 
+    let articleParagraphs: string[] = [];
 
     // 初始化会话环境
     await this.initializeSession(initialTopic);
@@ -146,6 +148,9 @@ export class ReasonerDialogService {
         content: creatorResponse
       });
 
+      // 把 creatorResponse 添加到 articleParagraphs 中
+      articleParagraphs.push(creatorResponse);
+
       // 更新当前内容为 creator 的回应，作为下一轮 ruler 的输入
       // 要把 上一段的文章和续写的文章拼接起来
       currentContent = initialContent + creatorResponse;
@@ -167,8 +172,7 @@ export class ReasonerDialogService {
     // 日志记录 currentContent
     await articleLogger.info(finalContent);
 
-    return finalContent;
-
+    return articleParagraphs;
   }
 
   /**
@@ -209,10 +213,12 @@ export class ReasonerDialogService {
   }
 
   private async endWrite(currentContent: string): Promise<string> {
-
-    const banfo = await fs.readFile(path.join(process.cwd(), 'src/prompt/v3/banfo.md'), 'utf-8');
+    // 随机选择一个 banfo 文件
+    const banfo = await getRandomBanfo();
+    
     // 读取结束段落的提示词
     const endWritePrompt = await this.loadPrompt(this.endWritePromptFile);
+    
     // 组装结束段落的输入
     const endWriteInput = endWritePrompt.replace('{$current_text}', currentContent)
       .replace('{$banfo}', banfo);
@@ -389,9 +395,10 @@ export class ReasonerDialogService {
     // 记录轮次开始
     await this.logToModelFile('creator', `\n--- 轮次 ${round}/${this.maxRounds} ---\n`);
     await this.logToModelFile('creator', `输入:\n${rulerResponse}\n\n`);
-
-    const banfo = await fs.readFile(path.join(process.cwd(), 'src/prompt/v3/banfo.md'), 'utf-8');
-
+    
+    // 随机选择一个 banfo 文件
+    const banfo = await getRandomBanfo();
+    
     const finalCreatorPrompt = creatorPrompt.replace('{$next_instruction}', rulerStructuredData.next_instruction)
       .replace('{$current_text}', currentContent)
       .replace('{$banfo}', banfo);
