@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { workflowService } from '@/services/workflow/workflow';
+// import { workflowService } from '@/services/workflow/workflow';
+import { workflowService } from '@/services/workflow/workflow2';
 import logger from '@/services/utils/logger';
 
 /**
@@ -95,7 +96,6 @@ export async function POST(request: NextRequest) {
       error: { 
         message: errorMessage, 
         stack: errorStack,
-        type: error.constructor.name
       },
       filePath // 现在 filePath 在作用域内
     });

@@ -92,7 +92,7 @@ export class ExtractContentService {
             ` + jsonMatch
           }
         ], {
-          model: 'deepseekV3',  // 指定使用 DeepSeek V3 模型
+          model: 'deepseek-chat',  // 指定使用 DeepSeek V3 模型
           temperature: 1.0
         });
         return result.choices[0]?.message?.content || '';

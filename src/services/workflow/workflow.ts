@@ -33,11 +33,14 @@ export class WorkflowService {
         const content = await this.readFile(absolutePath);
 
         // 调用 extractAndAnalyze 方法进行分析
-        const results = await extractContentService.extractAndAnalyze(content.trim());
+        let results = await extractContentService.extractAndAnalyze(content.trim());
         console.info('内容分析完成', {
             filePath,
             themesCount: results.length
         });
+
+        // 测试效果,只取第一个
+        results = results.slice(0, 1);
 
         let articleParagraphs: string[] = [];
 
@@ -63,6 +66,8 @@ export class WorkflowService {
             if (isEnd === 'no') {
                 const endWriteResponse = await reasonerDialogService.endWrite(finalContent);
                 finalContent = finalContent + '\n\n' + endWriteResponse;
+
+                articleParagraphs.push(endWriteResponse);
             }
 
             // 日志记录 currentContent
