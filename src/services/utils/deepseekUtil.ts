@@ -238,7 +238,8 @@ export class DeepSeekUtil {
             index: c.index,
             message: c.message ? {
               role: c.message.role,
-              content: c.message.content
+              content: c.message.content,
+              reasoning_content: c.message.reasoning_content
             } : null
           })) : null
         } : null

@@ -9,6 +9,8 @@ import { reviewArticleService } from './node/reviewArticle';
 // 创建模块特定的日志记录器
 const logger = createModuleLogger('workflow');
 
+const articleLogger = createModuleLogger('article');
+
 interface AnalysisResult {
     theme: string;
     time_line: string;
@@ -49,15 +51,32 @@ export class WorkflowService {
             // 把 firstParagraph 添加到 articleParagraphs 中
             articleParagraphs.push(firstParagraph);
 
+            let isEnd = 'no';
+
             // 调用 reasonerDialogService 方法进行对话
-            const dialgArticleParagraphs = await reasonerDialogService.executeDialog(theme, firstParagraph);
+            const dialgArticleParagraphs = await reasonerDialogService.executeDialog(theme, firstParagraph, isEnd);
             // 把后续创作的内容添加到 articleParagraphs 中
             articleParagraphs.push(...dialgArticleParagraphs);
+
+            // 结束循环后，如果 isEnd 为 no，则需要执行结束段落的创作
+            let finalContent = articleParagraphs.join('\n\n');
+            if (isEnd === 'no') {
+                const endWriteResponse = await reasonerDialogService.endWrite(finalContent);
+                finalContent = finalContent + '\n\n' + endWriteResponse;
+            }
+
+            // 日志记录 currentContent
+            await articleLogger.info(finalContent);
+            // 记录对话结束
+            await reasonerDialogService.logSessionEnd();
+
+            // 进行文章审查
+            await this.reviewArticleParagraphs(articleParagraphs);
         }
 
-        // 进行文章审查
-        await this.reviewArticleParagraphs(articleParagraphs);
+        const article = articleParagraphs.join('\n\n');
 
+        return article;
     }
 
 
@@ -79,20 +98,15 @@ export class WorkflowService {
             // 准备输出内容
             let outputContent = '# 文章与审查结果\n\n';
 
-            for (let i = 0; i < articleParagraphs.length; i++) {
-                outputContent += `## 段落 ${i + 1}\n\n`;
-                outputContent += `### 原始内容\n\n${articleParagraphs[i]}\n\n`;
+            for (let i = 0; i < reviewResults.length; i++) {
+                outputContent += `# 第${i + 1}段\n\n${articleParagraphs[i]}\n\n`;
                 outputContent += `### 审查结果\n\n${reviewResults[i]}\n\n`;
-                outputContent += '---\n\n';
             }
 
             // 写入文件
             await fs.writeFile(outputFile, outputContent, 'utf-8');
 
-            logger.info('文章段落审查完成并保存', {
-                outputFile,
-                paragraphsCount: articleParagraphs.length
-            });
+            logger.info('文章段落审查完成并保存');
 
             return `文章生成并审查完成，已保存到: ${outputFile}`;
         } catch (error) {

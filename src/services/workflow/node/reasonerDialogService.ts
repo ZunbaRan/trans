@@ -61,7 +61,7 @@ export class ReasonerDialogService {
    * @param initialTopic 初始话题
    * @returns 对话历史记录
    */
-  public async executeDialog(theme: string, initialTopic: string): Promise<string[]> {
+  public async executeDialog(theme: string, initialTopic: string, isEnd: string = 'no'): Promise<string[]> {
     logger.info('开始执行 Reasoner 模型对话', { initialTopic });
 
     // 创建对话历史记录
@@ -79,7 +79,6 @@ export class ReasonerDialogService {
     // 初始化对话，让 ruler 先发言
     let currentContent = initialTopic;
     let finalContent = '';
-    let isEnd = 'no';
 
     // 执行对话轮次
     for (let round = 1; round <= this.maxRounds; round++) {
@@ -105,6 +104,7 @@ export class ReasonerDialogService {
       const isComplete = rulerStructuredData.is_complete;
       // 保存 is_complete 的值
       isEnd = rulerStructuredData.is_complete;
+      // 如果判定为一篇完整的文章则中断循环
       if (isComplete === 'yes') {
         break;
       }
@@ -117,8 +117,8 @@ export class ReasonerDialogService {
       let realCreatorPrompt = creatorPrompt;
 
 
-      // 默认情况下 第2轮 第4轮 需要联网搜索
-      if (round == 2 || round == 4) {
+      // 默认情况下 第2轮 第3轮 第4轮 需要联网搜索
+      if (round == 2 || round == 3 || round == 4) {
         // # 续写主题的联网搜索内容
         const searchResult = await this.getSearchResult(searchInstruction, referenceContent);
         if (searchResult == '') {
@@ -157,20 +157,8 @@ export class ReasonerDialogService {
       finalContent = initialContent + '\n\n' + creatorResponse;
     }
 
-    // 结束循环后，如果 isEnd 为 no，则需要执行结束段落的创作
-    if (isEnd === 'no') {
-      const endWriteResponse = await this.endWrite(finalContent);
-      finalContent = finalContent + '\n\n' + endWriteResponse;
-    }
-
-    // 记录对话结束
-    await this.logSessionEnd();
-
     // 日志记录 dialogHistory
     // await this.logDialogHistory(dialogHistory);
-
-    // 日志记录 currentContent
-    await articleLogger.info(finalContent);
 
     return articleParagraphs;
   }
@@ -212,7 +200,7 @@ export class ReasonerDialogService {
     });
   }
 
-  private async endWrite(currentContent: string): Promise<string> {
+  public async endWrite(currentContent: string): Promise<string> {
     // 随机选择一个 banfo 文件
     const banfo = await getRandomBanfo();
     
@@ -487,7 +475,7 @@ export class ReasonerDialogService {
   /**
    * 记录会话结束
    */
-  private async logSessionEnd(): Promise<void> {
+  public async logSessionEnd(): Promise<void> {
     const endMsg = `\n对话结束\n时间: ${new Date().toISOString()}\n`;
     await this.logToModelFile('ruler', endMsg);
     await this.logToModelFile('creator', endMsg);
