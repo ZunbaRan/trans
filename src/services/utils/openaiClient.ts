@@ -17,6 +17,9 @@ interface OpenAIConfig {
   configs: ApiConfig[];
 }
 
+/**
+ * 尽量不用
+ */
 export class OpenAIClientManager {
   private static instance: OpenAIClientManager;
   private configs: ApiConfig[] = [];

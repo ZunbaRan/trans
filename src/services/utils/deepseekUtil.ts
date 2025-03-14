@@ -1,8 +1,8 @@
 import axios from 'axios';
-import * as fs from 'fs/promises';
 import path from 'path';
-import moment from 'moment';
 import { createModuleLogger } from './logger';
+import { ConfigLoader } from './configLoader';
+import { LogConversationUtil } from './loggerUtil';
 
 // 创建模块特定的日志记录器
 const logger = createModuleLogger('deepseek-util');
@@ -60,10 +60,10 @@ interface OpenAIConfigFile {
 }
 
 export class DeepSeekUtil {
-  private url: string;
-  private apiKey: string;
+  private url!: string;
+  private apiKey!: string;
   private logDir: string;
-  private model: string;
+  private model!: string;
 
   constructor(
     configTitle: string = 'deepseek-r1',
@@ -78,25 +78,17 @@ export class DeepSeekUtil {
    */
   private async loadConfig(configTitle: string): Promise<void> {
     try {
-      // 读取配置文件
-      const configPath = path.join(process.cwd(), 'src/config/openai.config.json');
-      const configData = await fs.readFile(configPath, 'utf-8');
-      const config: OpenAIConfigFile = JSON.parse(configData);
+      // 使用通用配置加载器
+      const config = await ConfigLoader.getConfig(configTitle, {
+        apiKey: '877e8151-2569-4337-a3e2-04f6ae9d5157',
+        baseURL: 'https://ark.cn-beijing.volces.com/api/v3/',
+        model: 'ep-20250211101729-97nwq'
+      });
 
-      // 查找指定标题的配置
-      const targetConfig = config.configs.find(c => c.title === configTitle);
-
-      if (!targetConfig) {
-        console.warn(`未找到标题为 "${configTitle}" 的配置，使用默认配置`);
-        this.apiKey = '877e8151-2569-4337-a3e2-04f6ae9d5157';
-        this.url = 'https://ark.cn-beijing.volces.com/api/v3/chat/completions';
-        this.model = 'ep-20250211101729-97nwq';
-      } else {
-        this.apiKey = targetConfig.apiKey;
-        this.url = targetConfig.baseURL + "chat/completions";
-        this.model = targetConfig.model;
-        console.log(`已加载 "${configTitle}" 配置`);
-      }
+      this.apiKey = config.apiKey;
+      this.url = config.baseURL + "chat/completions";
+      this.model = config.model;
+      
     } catch (error) {
       console.error('加载配置文件失败:', error);
       // 使用默认值
@@ -117,7 +109,8 @@ export class DeepSeekUtil {
     options: {
       max_tokens?: number;
       retries?: number;
-    } = {}
+    } = {} ,
+    configTitle: string = 'deepseek-r1'
   ): Promise<ChatCompletionResponse> {
     // 设置默认重试次数
     const maxRetries = options.retries || 3;
@@ -128,7 +121,7 @@ export class DeepSeekUtil {
       try {
         // 确保配置已加载
         if (!this.apiKey || !this.url || !this.model) {
-          await this.loadConfig('deepseek-r1');
+          await this.loadConfig(configTitle);
         }
 
         // 准备请求数据
@@ -159,8 +152,8 @@ export class DeepSeekUtil {
           }
         });
 
-        // 尝试记录对话，但不让日志错误影响主流程
-        await this.logConversation(messages, response.data);
+        // 替换原来的日志记录调用
+        await LogConversationUtil.logConversation(this.logDir, messages, response.data, 'deepseek');
        
 
         // 检查响应是否有效
@@ -207,50 +200,6 @@ export class DeepSeekUtil {
     // 如果所有重试都失败，抛出最后一个错误
     logger.error('所有重试都失败', lastError);
     throw lastError;
-  }
-
-  /**
-   * 记录对话到日志文件
-   * @param messages 请求消息
-   * @param response API 响应
-   */
-  private async logConversation(
-    messages: Message[],
-    response: ChatCompletionResponse | null
-  ): Promise<void> {
-    try {
-      // 确保日志目录存在
-      await fs.mkdir(this.logDir, { recursive: true });
-
-      const timestamp = moment().format('YYYY-MM-DD-HH-mm-ss');
-      const logFile = path.join(this.logDir, `conversation-${timestamp}.json`);
-
-      // 安全地创建日志内容，避免循环引用
-      const logContent = {
-        timestamp: moment().format('YYYY-MM-DD HH:mm:ss'),
-        request: {
-          messages: messages.map(m => ({ ...m })) // 创建消息的浅拷贝
-        },
-        response: response ? {
-          id: response.id,
-          model: response.model,
-          choices: response.choices ? response.choices.map(c => ({
-            index: c.index,
-            message: c.message ? {
-              role: c.message.role,
-              content: c.message.content,
-              reasoning_content: c.message.reasoning_content
-            } : null
-          })) : null
-        } : null
-      };
-
-      // 写入日志文件
-      await fs.writeFile(logFile, JSON.stringify(logContent, null, 2), 'utf-8');
-    } catch (error) {
-      // 使用简单的错误记录，避免复杂对象
-      logger.error('记录对话失败', error instanceof Error ? error.message : String(error));
-    }
   }
 
   /**
