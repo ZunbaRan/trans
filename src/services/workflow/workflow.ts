@@ -17,14 +17,13 @@ interface AnalysisResult {
     sections: string[];
 }
 
-export class WorkflowService {
+export class ArticleWorkflowService {
     /**
      * 从文件中提取内容并分析
      * @param filePath 文件路径
      * @returns 分析结果
      */
     public async analyzeContentFromFile(filePath: string): Promise<string> {
-        console.info('开始从文件中提取和分析内容', { filePath });
 
         // 检查文件是否存在
         const absolutePath = await this.checkFileExists(filePath);
@@ -33,21 +32,23 @@ export class WorkflowService {
         const content = await this.readFile(absolutePath);
 
         // 调用 extractAndAnalyze 方法进行分析
-        let results = await extractContentService.extractAndAnalyze(content.trim());
-        console.info('内容分析完成', {
-            filePath,
-            themesCount: results.length
-        });
+        // let results = await extractContentService.extractAndAnalyze(content.trim());
+        // console.info('内容分析完成', {
+        //     filePath,
+        //     themesCount: results.length
+        // });
 
+        const original_text = content;
         // 测试效果,只取第一个
-        results = results.slice(0, 1);
+        // results = results.slice(0, 1);
+        let results = [original_text];
 
         let articleParagraphs: string[] = [];
 
         // 循环results
         for (const result of results) {
             // 文章的主题
-            const theme = result.theme
+            // const theme = result.theme
 
             // 调用 firstCreateService 方法进行创作
             const firstParagraph = await firstCreateService.createFirstParagraph(result);
@@ -57,7 +58,7 @@ export class WorkflowService {
             let isEnd = 'no';
 
             // 调用 reasonerDialogService 方法进行对话
-            const dialgArticleParagraphs = await reasonerDialogService.executeDialog(theme, firstParagraph, isEnd);
+            const dialgArticleParagraphs = await reasonerDialogService.executeDialog(original_text, firstParagraph, isEnd);
             // 把后续创作的内容添加到 articleParagraphs 中
             articleParagraphs.push(...dialgArticleParagraphs);
 
@@ -76,7 +77,18 @@ export class WorkflowService {
             await reasonerDialogService.logSessionEnd();
 
             // 进行文章审查
-            await this.reviewArticleParagraphs(articleParagraphs);
+            // await this.reviewArticleParagraphs(articleParagraphs);
+
+
+            const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+            const outputFile = path.join(process.cwd(), 'public/output', `article-original-${timestamp}.md`);
+
+            // 确保输出目录存在
+            await fs.mkdir(path.join(process.cwd(), 'public/output'), { recursive: true });
+
+            // 写入文件
+            await fs.writeFile(outputFile, finalContent, 'utf-8');
+
         }
 
         const article = articleParagraphs.join('\n\n');
@@ -213,4 +225,4 @@ export class WorkflowService {
 }
 
 // 导出单例
-export const workflowService = new WorkflowService();
+export const articleWorkflowService = new ArticleWorkflowService();

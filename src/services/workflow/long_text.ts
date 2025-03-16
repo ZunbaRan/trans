@@ -5,9 +5,7 @@ import { reviewArticleService } from './node/reviewArticle';
 import { openAIClient } from '../utils/openaiClient';
 import { deepGemini } from '../utils/deepGemini';
 import { thinkingGeminiClient } from '../utils/geminiClient';
-import { Message } from './baseClient';
-import { deepseekUtil } from '../utils/deepseekUtil';
-
+import { Message } from '../utils/baseClient';
 // 创建模块特定的日志记录器
 const logger = createModuleLogger('workflow');
 
@@ -63,7 +61,7 @@ export class WorkflowService {
         // 4. 第三阶段：审查文章
         const localReviewResults = await reviewArticleService.localReview(resArticle);
         const banfotyReviewResults = await reviewArticleService.banfotyReview(localReviewResults);
-        const reviewResults = await reviewArticleService.seekbanfotyReview(banfotyReviewResults);
+        const reviewResults = await reviewArticleService.deepbanfotyReview(banfotyReviewResults);
 
         const allResults = '#文章主题\n\n' + limitedResults[0].theme + '\n\n' +
             '## 第一次审查\n\n' + resArticle + '\n\n' + localReviewResults + '\n\n' +
@@ -104,19 +102,19 @@ export class WorkflowService {
         // 审查文章
         const localReviewResults = await reviewArticleService.localReview(enrichedArticle);
         // 常规文风改编
-        const banfotyReviewResults = await reviewArticleService.banfotyReview(localReviewResults);
+        // const banfotyReviewResults = await reviewArticleService.banfotyReview(localReviewResults);
 
-        // 使用 deepseek 和 deepGemini 改编
-        const freeArticle = await reviewArticleService.deepbanfotyReview(localReviewResults);
+        // // 使用 deepseek 和 deepGemini 改编
+        // const freeArticle = await reviewArticleService.deepbanfotyReview(localReviewResults);
 
         // const reviewResults = await reviewArticleService.reviewParagraph(banfotyReviewResults);
 
         const allResults =
             '## 直接生成文章 \n\n' + responseContent + '\n\n' +
             '## 结合简报和时间轴丰富内容\n\n' + enrichedArticle + '\n\n' +
-            '## 本地化+深度\n\n' + localReviewResults + '\n\n' +
-            '## 常规文风改编\n\n' + banfotyReviewResults + '\n\n' +
-            '## 自由文风改编改编\n\n' + freeArticle;
+            '## 本地化+深度\n\n' + localReviewResults + '\n\n' 
+            // '## 常规文风改编\n\n' + banfotyReviewResults + '\n\n' +
+            // '## 自由文风改编改编\n\n' + freeArticle;
             // '## 第三次审查\n\n' + reviewResults + '\n\n' ;
             // '## deepseek改编\n\n' + deepseekArticle;
 
@@ -139,7 +137,8 @@ export class WorkflowService {
         // 读取文件内容
         const contentText = await this.readFile(absolutePath);
 
-        const prompt = `请阅读分析这篇文稿, 根据文稿选择合适的体裁创作一篇爆款文章, 要求文笔细腻,情感真挚, 使用中文输出
+        const prompt = `请阅读分析这篇文稿, 根据文稿创作一篇爆款文章, 要求文笔细腻,情感真挚, 使用中文输出,
+        文稿为播客的文字稿，创作文章时请着重于文稿的话题观点和内容，切记不要把广告，播客主持人，嘉宾等人物写入文章中。
         文稿内容为：
         ` + contentText;
 

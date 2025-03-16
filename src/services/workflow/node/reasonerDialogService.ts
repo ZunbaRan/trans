@@ -1,11 +1,11 @@
 import * as fs from 'fs/promises';
 import path from 'path';
 // deepseekutils
-import { deepseekUtil } from '../../utils/deepseekUtil';
 import { createModuleLogger } from '../../utils/logger';
 import { tavilySearchUtil } from '../../utils/TavilySearchUtil';
 import { webContentExtractor } from './webContentExtractor';
 import { getRandomBanfo } from '../../utils/banfoSelector';
+import { deepGemini } from '@/services/utils/deepGemini';
 
 // 创建模块特定的日志记录器
 const logger = createModuleLogger('reasoner-dialog');
@@ -16,8 +16,8 @@ const articleLogger = createModuleLogger('article');
 interface RulerResponse {
   is_complete: 'yes' | 'no';
   next_instruction: string;
-  search_instruction: string;
-  reference_content: string;
+  // search_instruction: string;
+  // reference_content: string;
 }
 
 interface DialogStep {
@@ -61,8 +61,7 @@ export class ReasonerDialogService {
    * @param initialTopic 初始话题
    * @returns 对话历史记录
    */
-  public async executeDialog(theme: string, initialTopic: string, isEnd: string = 'no'): Promise<string[]> {
-    logger.info('开始执行 Reasoner 模型对话', { initialTopic });
+  public async executeDialog(original_text: string, firstParagraph: string, isEnd: string = 'no'): Promise<string[]> {
 
     // 创建对话历史记录
     const dialogHistory: DialogStep[] = [];
@@ -70,14 +69,14 @@ export class ReasonerDialogService {
     let articleParagraphs: string[] = [];
 
     // 初始化会话环境
-    await this.initializeSession(initialTopic);
+    await this.initializeSession();
 
     // 读取提示词模板
     const rulerPrompt = await this.loadPrompt(this.rulerPromptFile);
     const creatorPrompt = await this.loadPrompt(this.creatorPromptFile);
 
     // 初始化对话，让 ruler 先发言
-    let currentContent = initialTopic;
+    let currentContent = firstParagraph;
     let finalContent = '';
 
     // 执行对话轮次
@@ -88,7 +87,7 @@ export class ReasonerDialogService {
 
       // Ruler 回应 - 返回结构化数据
       const { textResponse: rulerTextResponse, structuredData: rulerStructuredData } =
-        await this.executeRulerTurn(theme, rulerPrompt, currentContent, round);
+        await this.executeRulerTurn(original_text, rulerPrompt, currentContent, round);
 
       // 添加到对话历史
       dialogHistory.push({
@@ -110,30 +109,29 @@ export class ReasonerDialogService {
       }
 
       // ruler 传递给  creator 的指令
-      const searchInstruction = rulerStructuredData.search_instruction;
-      const referenceContent = rulerStructuredData.reference_content;
+      // const searchInstruction = rulerStructuredData.search_instruction;
+      // const referenceContent = rulerStructuredData.reference_content;
 
       // 创建一个可变的 creatorPrompt
       let realCreatorPrompt = creatorPrompt;
 
 
-      // 默认情况下 第2轮 第3轮 第4轮 需要联网搜索
-      if (round == 2 || round == 3 || round == 4) {
-        // # 续写主题的联网搜索内容
-        const searchResult = await this.getSearchResult(searchInstruction, referenceContent);
-        if (searchResult == '') {
-          realCreatorPrompt = creatorPrompt;
-        } else {
-          realCreatorPrompt = creatorPrompt + '\n\n' + searchResult;
-        }
-      }
+      // // 默认情况下 第2轮 第3轮 第4轮 需要联网搜索
+      // if (round == 2 || round == 3 || round == 4) {
+      //   // # 续写主题的联网搜索内容
+      //   const searchResult = await this.getSearchResult(searchInstruction, referenceContent);
+      //   if (searchResult == '') {
+      //     realCreatorPrompt = creatorPrompt;
+      //   } else {
+      //     realCreatorPrompt = creatorPrompt + '\n\n' + searchResult;
+      //   }
+      // }
 
       // 如果已经是最后一轮，则结束对话
       if (round === this.maxRounds) break;
 
       // creator 回应 - 返回文本
       const creatorResponse = await this.executeCreatorTurn(
-        theme,
         currentContent,
         realCreatorPrompt,
         rulerTextResponse,
@@ -166,7 +164,7 @@ export class ReasonerDialogService {
   /**
    * 初始化会话环境
    */
-  private async initializeSession(initialTopic: string): Promise<void> {
+  private async initializeSession(): Promise<void> {
     // 创建会话目录和日志文件
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
     this.currentSessionDir = path.join(this.dialogLogsDir, `session_${timestamp}`);
@@ -182,17 +180,17 @@ export class ReasonerDialogService {
     this.currentHistoryFile = path.join(this.historyDir, `history_${timestamp}.jsonl`);
 
     // 记录会话开始
-    const sessionStartMsg = `开始执行 Reasoner 模型对话\n时间: ${new Date().toISOString()}\n初始话题: ${initialTopic}\n\n`;
+    const sessionStartMsg = `开始执行 Reasoner 模型对话\n时间: ${new Date().toISOString()}`;
     await this.logToModelFile('ruler', sessionStartMsg);
     await this.logToModelFile('creator', sessionStartMsg);
 
     // 记录用户输入到历史
-    await this.appendToHistoryFile({
-      timestamp: new Date().toISOString(),
-      topic: initialTopic,
-      content: initialTopic,
-      speaker: 'user'
-    });
+    // await this.appendToHistoryFile({
+    //   timestamp: new Date().toISOString(),
+    //   topic: initialTopic,
+    //   content: initialTopic,
+    //   speaker: 'user'
+    // });
 
     logger.debug('会话环境初始化完成', {
       sessionDir: this.currentSessionDir,
@@ -268,7 +266,7 @@ export class ReasonerDialogService {
    * 执行 Ruler 模型回合 - 处理结构化数据
    */
   private async executeRulerTurn(
-    theme: string,
+    original_text: string,
     rulerPrompt: string,
     currentContent: string,
     round: number
@@ -280,7 +278,7 @@ export class ReasonerDialogService {
     // 根据ruler的模板组装ruler的输入
     const rulerInput = rulerPrompt
       .replace('{$current_text}', currentContent)
-      .replace('{$theme}', theme);
+      .replace('{$original_text}', original_text);
 
     // 构建消息
     const messages: any[] = [];
@@ -291,7 +289,7 @@ export class ReasonerDialogService {
     });
 
     // 调用 DeepSeek 模型
-    const response = await deepseekUtil.chat(messages);
+    const response = await deepGemini.chat(messages);
 
     // 提取响应内容
     if (!response || !response.choices || !response.choices[0] || !response.choices[0].message) {
@@ -328,17 +326,14 @@ export class ReasonerDialogService {
         const isComplete = responseContent.match(/is_complete: (yes|no)/)?.[1];
         // 提取 next_instruction 的值
         const nextInstruction = responseContent.match(/next_instruction: (.*)/)?.[1];
-        // 提取 search_instruction 的值
-        const searchInstruction = responseContent.match(/search_instruction: (.*)/)?.[1];
-        // 提取 reference_content 的值
-        const referenceContent = responseContent.match(/reference_content: (.*)/)?.[1];
+
 
         // 如果提取的值不存在 则默认为空字符串
         structuredData = {
           is_complete: isComplete as 'yes' | 'no' || 'no',
           next_instruction: nextInstruction || '',
-          search_instruction: searchInstruction || '',
-          reference_content: referenceContent || ''
+          // search_instruction: searchInstruction || '',
+          // reference_content: referenceContent || ''
         };
 
         return {
@@ -373,7 +368,6 @@ export class ReasonerDialogService {
    * 执行 Creator 模型回合 - 处理文本响应
    */
   private async executeCreatorTurn(
-    theme: string,
     currentContent: string,
     creatorPrompt: string,
     rulerResponse: string,
@@ -381,13 +375,15 @@ export class ReasonerDialogService {
     round: number
   ): Promise<string> {
     // 记录轮次开始
+    
     await this.logToModelFile('creator', `\n--- 轮次 ${round}/${this.maxRounds} ---\n`);
     await this.logToModelFile('creator', `输入:\n${rulerResponse}\n\n`);
     
     // 随机选择一个 banfo 文件
     const banfo = await getRandomBanfo();
     
-    const finalCreatorPrompt = creatorPrompt.replace('{$next_instruction}', rulerStructuredData.next_instruction)
+    const finalCreatorPrompt = creatorPrompt
+      .replace('{$next_instruction}', rulerStructuredData.next_instruction)
       .replace('{$current_text}', currentContent)
       .replace('{$banfo}', banfo);
 
@@ -402,7 +398,7 @@ export class ReasonerDialogService {
 
     try {
       // 调用 DeepSeek 模型
-      const response = await deepseekUtil.chat(messages);
+      const response = await deepGemini.chat(messages);
 
       // 添加防御性检查，确保 response 和 choices 存在
       if (!response || !response.choices || response.choices.length === 0) {
@@ -420,12 +416,12 @@ export class ReasonerDialogService {
       await this.logToModelFile('creator', `输出:\n${creatorResponse}\n\n`);
 
       // 记录 Creator 的回应到历史
-      await this.appendToHistoryFile({
-        timestamp: new Date().toISOString(),
-        topic: rulerResponse,
-        content: creatorResponse,
-        speaker: 'creator'
-      });
+      // await this.appendToHistoryFile({
+      //   timestamp: new Date().toISOString(),
+      //   topic: rulerResponse,
+      //   content: creatorResponse,
+      //   speaker: 'creator'
+      // });
 
       return creatorResponse;
     } catch (error) {
@@ -448,7 +444,7 @@ export class ReasonerDialogService {
     currentContent: string
   ): Promise<string> {
 
-    await this.logToModelFile('endWrite', `输入:\n${currentContent}\n\n`);
+    await this.logToModelFile('endWrite', `\n--- --------------------- ---\n`);
 
     const messages: any[] = [];
 
@@ -459,7 +455,7 @@ export class ReasonerDialogService {
     });
 
     // 调用 DeepSeek 模型
-    const response = await deepseekUtil.chat(messages);
+    const response = await deepGemini.chat(messages);
 
     // 提取响应内容
     const responseContent = response.choices[0]?.message?.content || '';
