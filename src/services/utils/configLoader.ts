@@ -1,6 +1,8 @@
 import * as fs from 'fs/promises';
 import path from 'path';
-import { logger } from '@/lib/logger';
+import { createModuleLogger } from './logger';
+
+const logger = createModuleLogger('configLoader');
 
 export interface ModelConfig {
   title: string;
@@ -33,14 +35,14 @@ export class ConfigLoader {
       this.configCache && 
       currentTime - this.lastLoadTime < this.cacheValidityPeriod
     ) {
-      return this.configCache;
+      return this.configCache as ConfigFile;
     }
     
     try {
       const configData = await fs.readFile(this.configPath, 'utf-8');
       this.configCache = JSON.parse(configData);
       this.lastLoadTime = currentTime;
-      return this.configCache;
+      return this.configCache as ConfigFile;
     } catch (error) {
       logger.error('加载配置文件失败:', error);
       throw new Error('Failed to load configuration file');

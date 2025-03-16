@@ -66,7 +66,7 @@ export class DeepSeekUtil {
   private model!: string;
 
   constructor(
-    configTitle: string = 'deepseek-r1',
+    configTitle: string = 'huoshan-DeepSeek-R1',
     logDir: string = path.join(process.cwd(), 'public/logs/deepseek')
   ) {
     this.logDir = logDir;
@@ -110,7 +110,7 @@ export class DeepSeekUtil {
       max_tokens?: number;
       retries?: number;
     } = {} ,
-    configTitle: string = 'deepseek-r1'
+    configTitle: string = 'huoshan-DeepSeek-R1'
   ): Promise<ChatCompletionResponse> {
     // 设置默认重试次数
     const maxRetries = options.retries || 3;
@@ -228,4 +228,4 @@ export class DeepSeekUtil {
 }
 
 // 导出单例实例
-export const deepseekUtil = new DeepSeekUtil('deepseek-r1');
+export const deepseekUtil = new DeepSeekUtil('huoshan-DeepSeek-R1');

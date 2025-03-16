@@ -1,5 +1,5 @@
 {
-  "default": "deepseekV3",
+  "default": "huoshan-DeepSeek-R1",
   "configs": [
     {
       "title": "deepseekV3",
@@ -66,7 +66,7 @@
       "compatibleMode": "openai"
     },
     {
-      "title": "gemini-1.5-pro-latest",
+      "title": "close-ai-gemini-1.5-pro-latest",
       "apiKey": "sk-cFVJq5no8VmM2VD8PLFVA6hblflKYwGf9bymWhG36I1poP1y",
       "baseURL": "https://api.openai-proxy.org/google",
       "model": "gemini-1.5-pro-latest",
@@ -74,11 +74,43 @@
       "compatibleMode": "gemini"
     },
     {
-      "title": "gemini-1.5-pro-002",
+      "title": "close-ai-gemini-1.5-pro-002",
       "apiKey": "sk-cFVJq5no8VmM2VD8PLFVA6hblflKYwGf9bymWhG36I1poP1y",
       "baseURL": "https://api.openai-proxy.org/google",
       "model": "gemini-1.5-pro-002",
       "type": "normal",
+      "compatibleMode": "gemini"
+    },
+    {
+      "title": "close-ai-gemini-2.0-flash",
+      "apiKey": "sk-cFVJq5no8VmM2VD8PLFVA6hblflKYwGf9bymWhG36I1poP1y",
+      "baseURL": "https://api.openai-proxy.org/google",
+      "model": "gemini-2.0-flash",
+      "type": "normal",
+      "compatibleMode": "gemini"
+    },
+    {
+      "title": "close-ai-gemini-2.0-flash-thinking-exp-01-21",
+      "apiKey": "sk-cFVJq5no8VmM2VD8PLFVA6hblflKYwGf9bymWhG36I1poP1y",
+      "baseURL": "https://api.openai-proxy.org/google",
+      "model": "gemini-2.0-flash-thinking-exp-01-21",
+      "type": "normal",
+      "compatibleMode": "gemini"
+    },
+    {
+      "title": "gemini-2.0-flash",
+      "apiKey": "AIzaSyAoUPjAqWzwqKxdHE6K3TdkuxVX0Sgg_Y8",
+      "baseURL": "https://generativelanguage.googleapis.com/v1beta/models",
+      "model": "gemini-2.0-flash",
+      "type": "normal",
+      "compatibleMode": "gemini"
+    },
+    {
+      "title": "gemini-2.0-flash-thinking-exp",
+      "apiKey": "AIzaSyAoUPjAqWzwqKxdHE6K3TdkuxVX0Sgg_Y8",
+      "baseURL": "https://generativelanguage.googleapis.com/v1beta/models",
+      "model": "gemini-2.0-flash-thinking-exp",
+      "type": "reasoner",
       "compatibleMode": "gemini"
     }
   ]

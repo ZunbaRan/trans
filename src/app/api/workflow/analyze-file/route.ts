@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 // import { workflowService } from '@/services/workflow/workflow';
-import { workflowService } from '@/services/workflow/workflow2';
+import { workflowService } from '@/services/workflow/long_text';
 import logger from '@/services/utils/logger';
 
 /**
