@@ -400,8 +400,9 @@ export class ReasonerDialogService {
     try {
       // 调用 DeepSeek 模型
       // round 单数轮次使用 doubao ，双数是使用 gemini
-      const response = await deepDoubao.chat(messages) ;
-
+      const response = round % 2 === 0 ? await deepGemini.chat(messages) : await deepDoubao.chat(messages) ;
+      // const response = await deepDoubao.chat(messages) ;
+      
       // 添加防御性检查，确保 response 和 choices 存在
       if (!response || !response.choices || response.choices.length === 0) {
         throw new Error('API 响应缺少 choices 数组');
