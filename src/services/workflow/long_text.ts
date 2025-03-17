@@ -104,15 +104,16 @@ export class WorkflowService {
         // 常规文风改编
         // const banfotyReviewResults = await reviewArticleService.banfotyReview(localReviewResults);
 
-        // // 使用 deepseek 和 deepGemini 改编
-        // const freeArticle = await reviewArticleService.deepbanfotyReview(localReviewResults);
+        
+        // const rewriteAlanResults = await reviewArticleService.rewriteParagraphAlan(localReviewResults);
 
         // const reviewResults = await reviewArticleService.reviewParagraph(banfotyReviewResults);
 
         const allResults =
             '## 直接生成文章 \n\n' + responseContent + '\n\n' +
             '## 结合简报和时间轴丰富内容\n\n' + enrichedArticle + '\n\n' +
-            '## 本地化+深度\n\n' + localReviewResults + '\n\n' 
+            '## 本地化+深度\n\n' + localReviewResults + '\n\n' ;
+            // '## 模仿文风\n\n' + rewriteAlanResults + '\n\n'
             // '## 常规文风改编\n\n' + banfotyReviewResults + '\n\n' +
             // '## 自由文风改编改编\n\n' + freeArticle;
             // '## 第三次审查\n\n' + reviewResults + '\n\n' ;

@@ -3,6 +3,7 @@ import path from 'path';
 import { createModuleLogger } from '../../utils/logger';
 import { getRandomBanfo } from '../../utils/banfoSelector';
 import { deepGemini } from '@/services/utils/deepGemini';
+import { deepDoubao } from '@/services/utils/deepDoubao';
 
 // 创建模块特定的日志记录器
 const logger = createModuleLogger('first-create');
@@ -81,7 +82,7 @@ export class FirstCreateService {
     // logger.debug('创建了最终提示词', { promptLength: finalPrompt.length, finalPrompt: finalPrompt });
     
     // 调用 DeepSeek 模型
-    const response = await deepGemini.chat([
+    const response = await deepDoubao.chat([
       { role: 'user', content: finalPrompt }
     ]);
     

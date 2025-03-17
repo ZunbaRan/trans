@@ -6,6 +6,7 @@ import { tavilySearchUtil } from '../../utils/TavilySearchUtil';
 import { webContentExtractor } from './webContentExtractor';
 import { getRandomBanfo } from '../../utils/banfoSelector';
 import { deepGemini } from '@/services/utils/deepGemini';
+import { deepDoubao } from '@/services/utils/deepDoubao';
 
 // 创建模块特定的日志记录器
 const logger = createModuleLogger('reasoner-dialog');
@@ -398,7 +399,8 @@ export class ReasonerDialogService {
 
     try {
       // 调用 DeepSeek 模型
-      const response = await deepGemini.chat(messages);
+      // round 单数轮次使用 doubao ，双数是使用 gemini
+      const response = await deepDoubao.chat(messages) ;
 
       // 添加防御性检查，确保 response 和 choices 存在
       if (!response || !response.choices || response.choices.length === 0) {
@@ -455,7 +457,7 @@ export class ReasonerDialogService {
     });
 
     // 调用 DeepSeek 模型
-    const response = await deepGemini.chat(messages);
+    const response = await deepDoubao.chat(messages);
 
     // 提取响应内容
     const responseContent = response.choices[0]?.message?.content || '';

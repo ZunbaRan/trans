@@ -26,6 +26,8 @@ export class ReviewArticleService {
   private readonly banfotyPromptFile: string = '08_banfoty.md';
   private readonly deepbanfotyPromptFile: string = '08_deepbanfoty.md';
   private readonly reviewPromptFile: string = '09_reviewArticle.md';
+  private readonly rewritePromptAlanFile: string = '10_rewriteAlan.md';
+
 
   constructor() {
     // 确保日志目录存在
@@ -113,6 +115,16 @@ export class ReviewArticleService {
     const reviewResult = await this.baseReview(paragraph, reviewPrompt);
 
     return reviewResult;
+  }
+
+  public async rewriteParagraphAlan(paragraph: string): Promise<string> {
+    // 加载审查提示词
+    const promptPath = path.join(process.cwd(), this.promptDir, this.rewritePromptAlanFile);
+    const reviewPrompt = await fs.readFile(promptPath, 'utf-8');
+
+    // 审查段落
+    const reviewResult = await this.baseReview(paragraph, reviewPrompt);
+    return reviewResult;  
   }
 
 

@@ -103,7 +103,7 @@ export class ArticleWorkflowService {
             logger.info('开始对文章段落进行审查', { paragraphsCount: articleParagraphs.length });
 
             // 审查文章段落并获取审查结果
-            const reviewResults = await reviewArticleService.reviewArticleParagraphs(articleParagraphs);
+            const reviewResults = await reviewArticleService.reviewArticleParagraphs(articleParagraphs[0]);
 
             // 将原始段落和审查结果保存到文件
             const timestamp = new Date().toISOString().replace(/[:.]/g, '-');

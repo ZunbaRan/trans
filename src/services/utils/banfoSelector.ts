@@ -17,7 +17,10 @@ export async function getRandomBanfo(): Promise<string> {
     const randomNumber = Math.floor(Math.random() * banfoCount) + 1;
     
     // 构建文件路径
-    const banfoPath = path.join(process.cwd(), `src/prompt/v3/banfo${randomNumber}.md`);
+    // const banfoPath = path.join(process.cwd(), `src/prompt/v3/banfo${randomNumber}.md`);
+
+    // 测试banfo1
+    const banfoPath = path.join(process.cwd(), `src/prompt/v3/banfo1.md`);
     
     logger.info(`随机选择了 banfo${randomNumber}.md 文件`);
     

@@ -113,7 +113,8 @@ export class GeminiClient extends BaseClient {
     const data: GeminiRequestData = {
       contents: geminiMessages,
       generationConfig: {
-        maxOutputTokens: options.maxOutputTokens ?? 8192
+        maxOutputTokens: options.maxOutputTokens ?? 8192,
+        temperature: options.temperature ?? 1.5
       }
     };
 
