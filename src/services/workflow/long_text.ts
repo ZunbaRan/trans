@@ -94,25 +94,24 @@ export class WorkflowService {
 
 
         // 2. 结合简报和时间轴丰富内容
-        const enrichedArticle = await this.enrichArticle(responseContent, timelinePath, reportPath);
+        // const enrichedArticle = await this.enrichArticle(responseContent, timelinePath, reportPath);
 
 
 
 
         // 审查文章
-        const localReviewResults = await reviewArticleService.localReview(enrichedArticle);
+        // const localReviewResults = await reviewArticleService.localReview(enrichedArticle);
         // alan 模仿文风
-        const freeAlanResults = await reviewArticleService.freeAlanReview(localReviewResults);
+        // const freeAlanResults = await reviewArticleService.freeAlanReview(localReviewResults);
         // banfo
-        const freeBanfoResults = await reviewArticleService.freeBanfoReview(localReviewResults);
+        const freeBanfoResults = await reviewArticleService.freeBanfoReview(responseContent);
 
-        // const reviewResults = await reviewArticleService.reviewParagraph(banfotyReviewResults);
 
         const allResults =
             '## 直接生成文章 \n\n' + responseContent + '\n\n' +
-            '## 结合简报和时间轴丰富内容\n\n' + enrichedArticle + '\n\n' +
-            '## 本地化+深度\n\n' + localReviewResults + '\n\n' +
-            '## alan 模仿文风\n\n' + freeAlanResults + '\n\n' +
+            // '## 结合简报和时间轴丰富内容\n\n' + enrichedArticle + '\n\n' +
+            // '## 本地化+深度\n\n' + localReviewResults + '\n\n' +
+            // '## alan 模仿文风\n\n' + freeAlanResults + '\n\n' +
             '## banfo 常规文风\n\n' + freeBanfoResults + '\n\n' ;
             // '## 第三次审查\n\n' + reviewResults + '\n\n' ;
             // '## deepseek改编\n\n' + deepseekArticle;

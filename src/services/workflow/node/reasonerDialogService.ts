@@ -133,6 +133,7 @@ export class ReasonerDialogService {
 
       // creator 回应 - 返回文本
       const creatorResponse = await this.executeCreatorTurn(
+        original_text,
         currentContent,
         realCreatorPrompt,
         rulerTextResponse,
@@ -369,6 +370,7 @@ export class ReasonerDialogService {
    * 执行 Creator 模型回合 - 处理文本响应
    */
   private async executeCreatorTurn(
+    original_text: string,
     currentContent: string,
     creatorPrompt: string,
     rulerResponse: string,
@@ -385,6 +387,7 @@ export class ReasonerDialogService {
     
     const finalCreatorPrompt = creatorPrompt
       .replace('{$next_instruction}', rulerStructuredData.next_instruction)
+      .replace('{$original_text}', original_text)
       .replace('{$current_text}', currentContent)
       .replace('{$banfo}', banfo);
 
