@@ -4,6 +4,8 @@ import { openAIClient } from '../../utils/openaiClient';
 import { createModuleLogger } from '../../utils/logger';
 import { deepseekUtil } from '@/services/utils/deepseekUtil';
 import { deepGemini } from '@/services/utils/deepGemini';
+import { deepDoubao } from '@/services/utils/deepDoubao';
+import { thinkingGeminiClient } from '@/services/utils/geminiClient';
 
 // 创建模块特定的日志记录器
 const logger = createModuleLogger('review-article');
@@ -83,25 +85,25 @@ export class ReviewArticleService {
     return reviewResult;
   }
 
-  // 常规文风改编
-  public async banfotyReview(paragraph: string): Promise<string> {
-    // 加载审查提示词
-    const promptPath = path.join(process.cwd(), this.promptDir, this.banfotyPromptFile);
-    const reviewPrompt = await fs.readFile(promptPath, 'utf-8');
-
-    // 审查段落
-    const reviewResult = await this.baseReview(paragraph, reviewPrompt);
-    return reviewResult;
-  }
 
   // 特殊文风改编
-  public async deepbanfotyReview(paragraph: string): Promise<string> {
+  public async freeBanfoReview(paragraph: string): Promise<string> {
     // 加载审查提示词
     const promptPath = path.join(process.cwd(), this.promptDir, this.deepbanfotyPromptFile);
     const reviewPrompt = await fs.readFile(promptPath, 'utf-8');
 
     // 审查段落
-    const reviewResult = await this.seekbaseReview(paragraph, reviewPrompt);
+    const reviewResult = await this.doubaoAndThinkingGeminiReview(paragraph, reviewPrompt);
+    return reviewResult;
+  }
+
+  public async freeAlanReview(paragraph: string): Promise<string> {
+    // 加载审查提示词
+    const promptPath = path.join(process.cwd(), this.promptDir, this.rewritePromptAlanFile);
+    const reviewPrompt = await fs.readFile(promptPath, 'utf-8');
+
+    // 审查段落
+    const reviewResult = await this.doubaoAndThinkingGeminiReview(paragraph, reviewPrompt);
     return reviewResult;
   }
 
@@ -166,7 +168,7 @@ export class ReviewArticleService {
     }
   }
 
-  public async seekbaseReview(paragraph: string, reviewPrompt: string): Promise<string> {
+  public async doubaoAndThinkingGeminiReview(paragraph: string, reviewPrompt: string): Promise<string> {
     try {
       logger.info('开始审查段落');
 
@@ -182,18 +184,17 @@ export class ReviewArticleService {
         content: finalPrompt
       });
 
-      const deepseekResult = await deepseekUtil.chat(messages);
+      const deepdoubaoResult = await deepDoubao.chat(messages);
 
-      const deepseekArticle = deepseekResult.choices[0]?.message?.content || '';
+      const deepdoubaoArticle = deepdoubaoResult.choices[0]?.message?.content || '';
 
-      const deepseekReasoning = deepseekResult.choices[0]?.message?.reasoning_content || '';
 
-      const deepGeminiResult = await deepGemini.chatWithReasoning(messages, deepseekReasoning);
+      // const thinkingGeminiResult = await thinkingGeminiClient.chat(messages);
 
-      const deepGeminiArticle = deepGeminiResult.choices[0]?.message?.content || '';
+      // const thinkingGeminiArticle = thinkingGeminiResult.choices[0]?.message?.content || '';
 
-      const reviewResult = '## 深度seek改编\n\n' + deepGeminiArticle + '\n\n' + 
-                           '## 深度Gemini改编\n\n' + deepseekArticle;
+      const reviewResult = '## 深度Doubao改编\n\n' + deepdoubaoArticle + '\n\n' ;
+                          //  '## ThinkingGemini改编\n\n' + thinkingGeminiArticle;
 
       logger.info('段落审查完成', {
         request: paragraph,
