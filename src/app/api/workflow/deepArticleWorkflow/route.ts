@@ -1,15 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { articleWorkflowService } from '@/services/workflow/workflow';
+import { deepArticleWorkflowService } from '@/services/workflow/deepArticleWorkflow';
 import { createModuleLogger } from '@/services/utils/logger';
 
 const logger = createModuleLogger('api-convert-article');
 
 /**
  * @swagger
- * /api/workflow/convert-article:
+ * /api/workflow/deepArticleWorkflow:
  *   post:
  *     summary: 将文件内容转换为文章
- *     description: 读取指定目录中的文件（context.txt、timeline.md、report.md），并生成多种风格的文章
+ *     description: 从指定文件中读取内容，并使用 DeepSeek R1 模型进行分析，生成爆款文章选题
  *     requestBody:
  *       required: true
  *       content:
@@ -19,8 +19,8 @@ const logger = createModuleLogger('api-convert-article');
  *             properties:
  *               filePath:
  *                 type: string
- *                 description: 包含所需文件的文件路径
- *                 example: "data/articles/sample"
+ *                 description: 要分析的文件路径
+ *                 example: "data/articles/sample.txt"
  *     responses:
  *       200:
  *         description: 转换成功
@@ -52,7 +52,7 @@ export async function POST(request: NextRequest) {
 
 
     // 执行工作流
-    const article = await articleWorkflowService.executeWorkflow(filePath.trim());
+    const article = await deepArticleWorkflowService.executeWorkflow(filePath.trim());
     
     return NextResponse.json({
       success: true,
@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
         message: errorMessage, 
         stack: errorStack,
       },
-      folderPath // 现在 folderPath 在作用域内
+      filePath // 现在 folderPath 在作用域内
     });
     return NextResponse.json(
       { 

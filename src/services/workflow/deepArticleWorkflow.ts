@@ -17,7 +17,7 @@ interface AnalysisResult {
     sections: string[];
 }
 
-export class ArticleWorkflowService {
+export class DeepArticleWorkflowService {
     /**
      * 从文件中提取内容并分析
      * @param filePath 文件路径
@@ -225,4 +225,4 @@ export class ArticleWorkflowService {
 }
 
 // 导出单例
-export const articleWorkflowService = new ArticleWorkflowService();
+export const deepArticleWorkflowService = new DeepArticleWorkflowService();

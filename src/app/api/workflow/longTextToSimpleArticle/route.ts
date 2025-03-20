@@ -1,14 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
-// import { workflowService } from '@/services/workflow/workflow';
-import { workflowService } from '@/services/workflow/long_text';
+import { longTextToSimpleArticle } from '@/services/workflow/longTextToSimpleArticle';
 import logger from '@/services/utils/logger';
 
 /**
  * @swagger
- * /api/workflow/analyze-file:
+ * /api/workflow/longTextToSimpleArticle:
  *   post:
  *     summary: 分析文件内容
- *     description: 从指定文件中读取内容，并使用 DeepSeek R1 模型进行分析，生成爆款文章选题
+ *     description: 读取指定目录中的文件（context.txt、timeline.md、report.md），并生成多种风格的文章
  *     requestBody:
  *       required: true
  *       content:
@@ -18,8 +17,8 @@ import logger from '@/services/utils/logger';
  *             properties:
  *               filePath:
  *                 type: string
- *                 description: 要分析的文件路径
- *                 example: "data/articles/sample.txt"
+ *                 description: 包含所需文件的文件路径
+ *                 example: "data/articles/sample"
  *     responses:
  *       200:
  *         description: 分析成功
@@ -72,7 +71,7 @@ export async function POST(request: NextRequest) {
     logger.info('开始处理文件分析请求', { filePath });
 
     // 执行工作流
-    const results = await workflowService.executeWorkflow(filePath.trim());
+    const results = await longTextToSimpleArticle.executeWorkflow(filePath.trim());
     
     return NextResponse.json({
       success: true,
