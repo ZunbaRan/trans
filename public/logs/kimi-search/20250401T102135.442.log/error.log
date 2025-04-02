@@ -1,0 +1,27 @@
+[2025-04-01 18:21:37] [ERROR]: Kimi 联网搜索失败 400 Invalid request: tool_call_id  is not found
+{
+  "module": "kimi-search",
+  "status": 400,
+  "headers": {
+    "connection": "keep-alive",
+    "content-length": "98",
+    "content-type": "application/json; charset=utf-8",
+    "date": "Tue, 01 Apr 2025 10:21:37 GMT",
+    "msh-cache": "updated",
+    "msh-gid": "enterprise-tier-1",
+    "msh-org-id": "org-26392d18cf054f70bd965f70f9f71cde",
+    "msh-project-id": "proj-90394c80d71c4127b08c8bd4de1cc00c",
+    "msh-request-id": "181ba5cd-0ee3-11f0-abda-bad7a11aa394",
+    "msh-trace-mode": "on",
+    "msh-uid": "copg4ib5cfuj3gak3pcg",
+    "set-cookie": "aliyungf_tc=b10ca496a73d616ac3e8dbdf4871ed55cd59b3ebfe6c6a9800b38f9257919e17; Path=/; HttpOnly",
+    "strict-transport-security": "max-age=15724800; includeSubDomains",
+    "vary": "Origin"
+  },
+  "error": {
+    "message": "Invalid request: tool_call_id  is not found",
+    "type": "invalid_request_error"
+  },
+  "type": "invalid_request_error",
+  "stack": "Error: 400 Invalid request: tool_call_id  is not found\n    at APIError.generate (webpack-internal:///(rsc)/./node_modules/openai/error.mjs:58:20)\n    at OpenAI.makeStatusError (webpack-internal:///(rsc)/./node_modules/openai/core.mjs:338:65)\n    at OpenAI.makeRequest (webpack-internal:///(rsc)/./node_modules/openai/core.mjs:389:30)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async KimiWebSearch.search (webpack-internal:///(rsc)/./src/services/utils/kimi.ts:49:36)\n    at async POST (webpack-internal:///(rsc)/./src/app/api/kimi-search/route.ts:84:28)\n    at async /Users/loloru/vscodeProjects/transNode/trans/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:63809\n    at async eU.execute (/Users/loloru/vscodeProjects/transNode/trans/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:53964)\n    at async eU.handle (/Users/loloru/vscodeProjects/transNode/trans/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:65062)\n    at async doRender (/Users/loloru/vscodeProjects/transNode/trans/node_modules/next/dist/server/base-server.js:1333:42)\n    at async cacheEntry.responseCache.get.routeKind (/Users/loloru/vscodeProjects/transNode/trans/node_modules/next/dist/server/base-server.js:1555:28)\n    at async DevServer.renderToResponseWithComponentsImpl (/Users/loloru/vscodeProjects/transNode/trans/node_modules/next/dist/server/base-server.js:1463:28)\n    at async DevServer.renderPageComponent (/Users/loloru/vscodeProjects/transNode/trans/node_modules/next/dist/server/base-server.js:1856:24)\n    at async DevServer.renderToResponseImpl (/Users/loloru/vscodeProjects/transNode/trans/node_modules/next/dist/server/base-server.js:1894:32)\n    at async DevServer.pipeImpl (/Users/loloru/vscodeProjects/transNode/trans/node_modules/next/dist/server/base-server.js:911:25)\n    at async NextNodeServer.handleCatchallRenderRequest (/Users/loloru/vscodeProjects/transNode/trans/node_modules/next/dist/server/next-server.js:271:17)\n    at async DevServer.handleRequestImpl (/Users/loloru/vscodeProjects/transNode/trans/node_modules/next/dist/server/base-server.js:807:17)\n    at async /Users/loloru/vscodeProjects/transNode/trans/node_modules/next/dist/server/dev/next-dev-server.js:331:20\n    at async Span.traceAsyncFn (/Users/loloru/vscodeProjects/transNode/trans/node_modules/next/dist/trace/trace.js:151:20)\n    at async DevServer.handleRequest (/Users/loloru/vscodeProjects/transNode/trans/node_modules/next/dist/server/dev/next-dev-server.js:328:24)\n    at async invokeRender (/Users/loloru/vscodeProjects/transNode/trans/node_modules/next/dist/server/lib/router-server.js:163:21)\n    at async handleRequest (/Users/loloru/vscodeProjects/transNode/trans/node_modules/next/dist/server/lib/router-server.js:342:24)\n    at async requestHandlerImpl (/Users/loloru/vscodeProjects/transNode/trans/node_modules/next/dist/server/lib/router-server.js:366:13)\n    at async Server.requestListener (/Users/loloru/vscodeProjects/transNode/trans/node_modules/next/dist/server/lib/start-server.js:140:13)"
+}

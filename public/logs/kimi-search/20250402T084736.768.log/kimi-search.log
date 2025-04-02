@@ -1,0 +1,48 @@
+[2025-04-02 16:47:36] [INFO]: 发送请求到 Kimi API，当前消息数: 2
+{
+  "module": "kimi-search"
+}
+[2025-04-02 16:47:41] [INFO]: 执行 $web_search 搜索，参数: {"search_result":{"search_id":"4875a95167ecf9ad1545630001fa6262"},"usage":{"total_tokens":7966}}
+{
+  "module": "kimi-search"
+}
+[2025-04-02 16:47:41] [INFO]: 发送请求到 Kimi API，当前消息数: 4
+{
+  "module": "kimi-search"
+}
+[2025-04-02 16:48:02] [INFO]: 搜索完成，获得最终回答
+{
+  "module": "kimi-search"
+}
+[2025-04-02 17:16:33] [INFO]: 发送请求到 Kimi API，当前消息数: 2
+{
+  "module": "kimi-search"
+}
+[2025-04-02 17:16:36] [INFO]: 执行 $web_search 搜索，参数: {"search_result":{"search_id":"d78e3db667ed00741545630001fa7468"},"usage":{"total_tokens":7974}}
+{
+  "module": "kimi-search"
+}
+[2025-04-02 17:16:36] [INFO]: 发送请求到 Kimi API，当前消息数: 4
+{
+  "module": "kimi-search"
+}
+[2025-04-02 17:16:52] [INFO]: 搜索完成，获得最终回答
+{
+  "module": "kimi-search"
+}
+[2025-04-02 17:21:22] [INFO]: 发送请求到 Kimi API，当前消息数: 2
+{
+  "module": "kimi-search"
+}
+[2025-04-02 17:21:29] [INFO]: 执行 $web_search 搜索，参数: {"search_result":{"search_id":"63c973b167ed01991545630001fa76b3"},"usage":{"total_tokens":7760}}
+{
+  "module": "kimi-search"
+}
+[2025-04-02 17:21:29] [INFO]: 发送请求到 Kimi API，当前消息数: 4
+{
+  "module": "kimi-search"
+}
+[2025-04-02 17:21:50] [INFO]: 搜索完成，获得最终回答
+{
+  "module": "kimi-search"
+}

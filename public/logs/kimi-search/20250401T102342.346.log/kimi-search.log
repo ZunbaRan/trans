@@ -1,0 +1,16 @@
+[2025-04-01 18:23:42] [INFO]: 发送请求到 Kimi API，当前消息数: 2
+{
+  "module": "kimi-search"
+}
+[2025-04-01 18:23:45] [INFO]: 执行 $web_search 搜索，参数: {"search_result":{"search_id":"0311847a67ebbeb02b42f60001e2dfa2"},"usage":{"total_tokens":8363}}
+{
+  "module": "kimi-search"
+}
+[2025-04-01 18:23:45] [INFO]: 发送请求到 Kimi API，当前消息数: 4
+{
+  "module": "kimi-search"
+}
+[2025-04-01 18:23:56] [INFO]: 搜索完成，获得最终回答
+{
+  "module": "kimi-search"
+}
